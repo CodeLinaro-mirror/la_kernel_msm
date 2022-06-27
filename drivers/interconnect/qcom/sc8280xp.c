@@ -1915,11 +1915,6 @@ static struct qcom_icc_bcm bcm_nsb1 = {
 static struct qcom_icc_bcm bcm_pci0 = {
 	.name = "PCI0",
 	.num_nodes = 1,
-	/*
-	 * TODO: Downstream does not have PCIE0 as keepalive, but turning it
-	 * off causes the platform to hang. So leave it keepaliv for now.
-	 */
-	.keepalive = true,
 	.nodes = { &qns_pcie_gem_noc },
 };
 
@@ -2401,18 +2396,18 @@ static struct qcom_icc_desc sc8280xp_system_noc_main = {
 };
 
 static const struct of_device_id qnoc_of_match[] = {
-	{ .compatible = "qcom,sc8280xp-aggre1_noc", .data = &sc8280xp_aggre1_noc, },
-	{ .compatible = "qcom,sc8280xp-aggre2_noc", .data = &sc8280xp_aggre2_noc, },
-	{ .compatible = "qcom,sc8280xp-clk_virt", .data = &sc8280xp_clk_virt, },
-	{ .compatible = "qcom,sc8280xp-config_noc", .data = &sc8280xp_config_noc, },
-	{ .compatible = "qcom,sc8280xp-dc_noc", .data = &sc8280xp_dc_noc, },
-	{ .compatible = "qcom,sc8280xp-gem_noc", .data = &sc8280xp_gem_noc, },
-	{ .compatible = "qcom,sc8280xp-lpass_ag_noc", .data = &sc8280xp_lpass_ag_noc, },
-	{ .compatible = "qcom,sc8280xp-mc_virt", .data = &sc8280xp_mc_virt, },
-	{ .compatible = "qcom,sc8280xp-mmss_noc", .data = &sc8280xp_mmss_noc, },
-	{ .compatible = "qcom,sc8280xp-nspa_noc", .data = &sc8280xp_nspa_noc, },
-	{ .compatible = "qcom,sc8280xp-nspb_noc", .data = &sc8280xp_nspb_noc, },
-	{ .compatible = "qcom,sc8280xp-system_noc_main", .data = &sc8280xp_system_noc_main, },
+	{ .compatible = "qcom,sc8280xp-aggre1-noc", .data = &sc8280xp_aggre1_noc, },
+	{ .compatible = "qcom,sc8280xp-aggre2-noc", .data = &sc8280xp_aggre2_noc, },
+	{ .compatible = "qcom,sc8280xp-clk-virt", .data = &sc8280xp_clk_virt, },
+	{ .compatible = "qcom,sc8280xp-config-noc", .data = &sc8280xp_config_noc, },
+	{ .compatible = "qcom,sc8280xp-dc-noc", .data = &sc8280xp_dc_noc, },
+	{ .compatible = "qcom,sc8280xp-gem-noc", .data = &sc8280xp_gem_noc, },
+	{ .compatible = "qcom,sc8280xp-lpass-ag-noc", .data = &sc8280xp_lpass_ag_noc, },
+	{ .compatible = "qcom,sc8280xp-mc-virt", .data = &sc8280xp_mc_virt, },
+	{ .compatible = "qcom,sc8280xp-mmss-noc", .data = &sc8280xp_mmss_noc, },
+	{ .compatible = "qcom,sc8280xp-nspa-noc", .data = &sc8280xp_nspa_noc, },
+	{ .compatible = "qcom,sc8280xp-nspb-noc", .data = &sc8280xp_nspb_noc, },
+	{ .compatible = "qcom,sc8280xp-system-noc", .data = &sc8280xp_system_noc_main, },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, qnoc_of_match);

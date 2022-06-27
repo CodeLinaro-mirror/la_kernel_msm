@@ -75,12 +75,11 @@ void hv_remove_vmbus_handler(void)
 DEFINE_IDTENTRY_SYSVEC(sysvec_hyperv_stimer0)
 {
 	struct pt_regs *old_regs = set_irq_regs(regs);
-	u64 ip = regs ? instruction_pointer(regs) : 0;
 
 	inc_irq_stat(hyperv_stimer0_count);
 	if (hv_stimer0_handler)
 		hv_stimer0_handler();
-	add_interrupt_randomness(HYPERV_STIMER0_VECTOR, 0, ip);
+	add_interrupt_randomness(HYPERV_STIMER0_VECTOR);
 	ack_APIC_irq();
 
 	set_irq_regs(old_regs);
@@ -299,10 +298,10 @@ static void __init ms_hyperv_init_platform(void)
 		hv_host_info_ecx = cpuid_ecx(HYPERV_CPUID_VERSION);
 		hv_host_info_edx = cpuid_edx(HYPERV_CPUID_VERSION);
 
-		pr_info("Hyper-V Host Build:%d-%d.%d-%d-%d.%d\n",
-			hv_host_info_eax, hv_host_info_ebx >> 16,
-			hv_host_info_ebx & 0xFFFF, hv_host_info_ecx,
-			hv_host_info_edx >> 24, hv_host_info_edx & 0xFFFFFF);
+		pr_info("Hyper-V: Host Build %d.%d.%d.%d-%d-%d\n",
+			hv_host_info_ebx >> 16, hv_host_info_ebx & 0xFFFF,
+			hv_host_info_eax, hv_host_info_edx & 0xFFFFFF,
+			hv_host_info_ecx, hv_host_info_edx >> 24);
 	}
 
 	if (ms_hyperv.features & HV_ACCESS_FREQUENCY_MSRS &&

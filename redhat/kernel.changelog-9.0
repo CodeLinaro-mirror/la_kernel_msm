@@ -1,3 +1,285 @@
+* Thu Apr 14 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.13.1.el9_0]
+- redhat: disable uncommon media device infrastructure (Jarod Wilson) [2074598]
+- netfilter: nf_tables: unregister flowtable hooks on netns exit (Florian Westphal) [2056869]
+- netfilter: nf_tables_offload: incorrect flow offload action array size (Florian Westphal) [2056869] {CVE-2022-25636}
+- netfilter: nf_tables: validate registers coming from userspace. (Phil Sutter) [2065350] {CVE-2022-1015}
+- scsi: qedi: Fix failed disconnect handling (Chris Leech) [2071524]
+- scsi: iscsi: Fix unbound endpoint error handling (Chris Leech) [2071524]
+- scsi: iscsi: Fix conn cleanup and stop race during iscsid restart (Chris Leech) [2071524]
+- scsi: iscsi: Fix endpoint reuse regression (Chris Leech) [2071524]
+- scsi: iscsi: Release endpoint ID when its freed (Chris Leech) [2071524]
+- scsi: iscsi: Fix offload conn cleanup when iscsid restarts (Chris Leech) [2071524]
+- Revert "scsi: iscsi: Fix offload conn cleanup when iscsid restarts" (Chris Leech) [2071524]
+- scsi: iscsi: Speed up session unblocking and removal (Chris Leech) [2071524]
+- scsi: iscsi: Fix recovery and unblocking race (Chris Leech) [2071524]
+- scsi: qedi: Fix cmd_cleanup_cmpl counter mismatch issue (Chris Leech) [2071524]
+- scsi: iscsi: Unblock session then wake up error handler (Chris Leech) [2071524]
+- scsi: iscsi: Fix set_param() handling (Chris Leech) [2071524]
+- scsi: iscsi: Fix iscsi_task use after free (Chris Leech) [2071524]
+- scsi: iscsi: Adjust iface sysfs attr detection (Chris Leech) [2071524]
+- scsi: qedi: Add support for fastpath doorbell recovery (Chris Leech) [2071524]
+Resolves: rhbz#2074598, rhbz#2056869, rhbz#2065350, rhbz#2071524
+
+* Tue Apr 12 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.12.1.el9_0]
+- redhat/configs: Enable WDT devices used by qemu VMs (Prarit Bhargava) [2074160]
+- redhat/configs: disable CONFIG_CAN_SOFTING (Brian Masney) [2073521]
+Resolves: rhbz#2074160, rhbz#2073521
+
+* Fri Apr 08 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.11.1.el9_0]
+- myri10ge: mark as unmaintained (Michal Schmidt) [2054208]
+- benet: mark device 0xe220 (Lancer) as unmaintained (Michal Schmidt) [2054208]
+- bnx2: mark as unmaintained (Michal Schmidt) [2054208]
+- ice: Fix race condition during interface enslave (Petr Oros) [1988953]
+- ice: Fix error with handling of bonding MTU (Petr Oros) [1988953]
+- ice: Avoid RTNL lock when re-creating auxiliary device (Petr Oros) [1988953]
+- ice: Fix KASAN error in LAG NETDEV_UNREGISTER handler (Petr Oros) [1988953]
+Resolves: rhbz#2054208, rhbz#1988953
+
+* Wed Apr 06 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.10.1.el9_0]
+- CI: Remove deprecated option (Veronika Kabatova)
+- scsi: iscsi: Fix nop handling during conn recovery (Chris Leech) [2069973]
+- scsi: iscsi: Merge suspend fields (Chris Leech) [2069973]
+- scsi: iscsi: Fix offload conn cleanup when iscsid restarts (Chris Leech) [2069973]
+- scsi: iscsi: Move iscsi_ep_disconnect (Chris Leech) [2069973]
+Resolves: rhbz#2069973
+
+* Mon Apr 04 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.9.1.el9_0]
+- NFS: Don't loop forever in nfs_do_recoalesce() (Steve Dickson) [2069274]
+- perf/x86/intel/uncore: Make uncore_discovery clean for 64 bit addresses (Michael Petlan) [2069686]
+Resolves: rhbz#2069274, rhbz#2069686
+
+* Fri Apr 01 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.8.1.el9_0]
+- KVM: SVM: Allow AVIC support on system w/ physical APIC ID > 255 (Bandan Das) [2033070]
+- iommu/amd: Fix I/O page table memory leak (Jerry Snitselaar) [2053219]
+- iommu/amd: Recover from event log overflow (Jerry Snitselaar) [2053219]
+Resolves: rhbz#2033070, rhbz#2053219
+
+* Thu Mar 31 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.7.1.el9_0]
+- redhat/configs: drop some config options for rhel 9. (David Airlie) [2067027]
+- arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Use the clearbhb instruction in mitigations (Waiman Long) [2062288] {CVE-2022-23960}
+- KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Mitigate spectre style branch history side channels (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2 (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Add percpu vectors for EL1 (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Add macro for reading symbol addresses from the trampoline (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Add vectors that have the bhb mitigation sequences (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Allow the trampoline text to occupy multiple pages (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Make the kpti trampoline's kpti sequence optional (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Move trampoline macros out of ifdef'd section (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Don't assume tramp_vectors is the start of the vectors (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Allow tramp_alias to access symbols after the 4K boundary (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Move the trampoline data page before the text page (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Free up another register on kpti's tramp_exit path (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry: Make the trampoline cleanup optional (Waiman Long) [2062288] {CVE-2022-23960}
+- KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: spectre: Rename spectre_v4_patch_fw_mitigation_conduit (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: entry.S: Add ventry overflow sanity checks (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Add Cortex-A510 CPU part definition (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Add Cortex-X2 CPU part definition (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: cpufeature: add HWCAP for FEAT_RPRES (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: add ID_AA64ISAR2_EL1 sys register (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: cpufeature: add HWCAP for FEAT_AFP (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Add Neoverse-N2, Cortex-A710 CPU part definition (Waiman Long) [2062288] {CVE-2022-23960}
+- arm64: Add HWCAP for self-synchronising virtual counter (Waiman Long) [2062288] {CVE-2022-23960}
+- iommu/vt-d: Fix double list_add when enabling VMD in scalable mode (Jerry Snitselaar) [2061621]
+- redhat/configs: remove unnecessary GPIO options for aarch64 (Brian Masney) [2060951]
+- redhat/configs: remove viperboard related Kconfig options (Brian Masney) [2060951]
+Resolves: rhbz#2067027, rhbz#2062288, rhbz#2061621, rhbz#2060951
+
+* Mon Mar 28 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.6.1.el9_0]
+- configs: enable CONFIG_RMI4_F3A (Benjamin Tissoires) [2067243]
+- block: release rq qos structures for queue without disk (Ming Lei) [2065610]
+- fuse: fix pipe buffer lifetime for direct_io (Miklos Szeredi) [2064862] {CVE-2022-1011}
+- crypto: hmac - disallow keys < 112 bits in FIPS mode (Herbert Xu) [2033512]
+- crypto: hmac - add fips_skip support (Herbert Xu) [2033512]
+- crypto: des - disallow des3 in FIPS mode (Herbert Xu) [2033512]
+- crypto: dh - limit key size to 2048 in FIPS mode (Herbert Xu) [2033512]
+- crypto: rsa - limit key size to 2048 in FIPS mode (Herbert Xu) [2033512]
+- watch_queue: Make comment about setting ->defunct more accurate (David Howells) [2063758]
+- watch_queue: Fix lack of barrier/sync/lock between post and read (David Howells) [2063758]
+- watch_queue: Free the alloc bitmap when the watch_queue is torn down (David Howells) [2063758]
+- watch_queue: Fix the alloc bitmap size to reflect notes allocated (David Howells) [2063758]
+- watch_queue: Use the bitmap API when applicable (David Howells) [2063758]
+- watch_queue: Fix to always request a pow-of-2 pipe ring size (David Howells) [2063758]
+- watch_queue: Fix to release page in ->release() (David Howells) [2063758]
+- watch_queue, pipe: Free watchqueue state after clearing pipe ring (David Howells) [2063758]
+- watch_queue: Fix filter limit check (David Howells) [2063758] {CVE-2022-0995}
+Resolves: rhbz#2067243, rhbz#2065610, rhbz#2064862, rhbz#2033512, rhbz#2063758
+
+* Thu Mar 24 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.5.1.el9_0]
+- NFSD: Fix offset type in I/O trace points (Benjamin Coddington) [2063045]
+- NFSD: COMMIT operations must not return NFS?ERR_INVAL (Benjamin Coddington) [2063045]
+- NFSD: Clamp WRITE offsets (Benjamin Coddington) [2063045]
+- NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes (Benjamin Coddington) [2063045]
+- NFSD: Fix ia_size underflow (Benjamin Coddington) [2063045]
+- NFSD: Fix the behavior of READ near OFFSET_MAX (Benjamin Coddington) [2063045]
+- perf/x86/intel/uncore: Fix Intel SPR CHA event constraints (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Fix Intel SPR IIO event constraints (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Fix Intel SPR M2PCIE event constraints (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Fix Intel SPR M3UPI event constraints (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Support IMC free-running counters on Sapphire Rapids server (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Support IIO free-running counters on Sapphire Rapids server (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Factor out snr_uncore_mmio_map() (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add alias PMU name (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server MDF support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server M3UPI support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server UPI support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server M2M support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server IMC support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server PCU support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server M2PCIe support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server IRP support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server IIO support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server CHA support (Michael Petlan) [2054100]
+- perf/x86/intel/uncore: Add Sapphire Rapids server framework (Michael Petlan) [2054100]
+- Revert "include/linux/ioport.h: Pad resource struct for KABI" (Prarit Bhargava) [2055736]
+- powerpc/pseries: Fix use after free in remove_phb_dynamic() (Prarit Bhargava) [2055736]
+- lib/sbitmap: kill 'depth' from sbitmap_word (Ming Lei) [2064695]
+- KVM: use __vcalloc for very large allocations (David Hildenbrand) [2057367]
+- mm: use vmalloc_array and vcalloc for array allocations (David Hildenbrand) [2057367]
+- mm: vmalloc: introduce array allocation functions (David Hildenbrand) [2057367]
+- tpm: fix potential NULL pointer access in tpm_del_char_device (Desnes A. Nunes do Rosario) [2032117]
+- x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT (Waiman Long) [2062158 2062168] {CVE-2021-26401 CVE-2022-0001 CVE-2022-0002}
+- x86/speculation: Warn about Spectre v2 LFENCE mitigation (Waiman Long) [2062158 2062168] {CVE-2021-26401 CVE-2022-0001 CVE-2022-0002}
+- x86/speculation: Update link to AMD speculation whitepaper (Waiman Long) [2062168] {CVE-2021-26401}
+- x86/speculation: Use generic retpoline by default on AMD (Waiman Long) [2062168] {CVE-2021-26401}
+- x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting (Waiman Long) [2062158] {CVE-2022-0001 CVE-2022-0002}
+- Documentation/hw-vuln: Update spectre doc (Waiman Long) [2062158] {CVE-2022-0001 CVE-2022-0002}
+- x86/speculation: Add eIBRS + Retpoline options (Waiman Long) [2062158] {CVE-2022-0001 CVE-2022-0002}
+- x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE (Waiman Long) [2062158] {CVE-2022-0001 CVE-2022-0002}
+- x86,bugs: Unconditionally allow spectre_v2=retpoline,amd (Waiman Long) [2062158] {CVE-2022-0001 CVE-2022-0002}
+- x86: deduplicate the spectre_v2_user documentation (Waiman Long) [2062158] {CVE-2022-0001 CVE-2022-0002}
+- redhat/configs: aarch64: Enable ARM_SPE_PMU (Mark Salter) [2063234]
+- drm/i915/audio: Use BIOS provided value for RKL HDA link (Mika Penttilä) [2046691]
+- redhat: configs: Disable TPM 1.2 device drivers (Jerry Snitselaar) [2060516]
+- redhat: configs: Change aarch64 default dma domain to lazy (Jerry Snitselaar) [2050415]
+Resolves: rhbz#2063045, rhbz#2054100, rhbz#2055736, rhbz#2064695, rhbz#2057367, rhbz#2032117, rhbz#2062158, rhbz#2062168, rhbz#2063234, rhbz#2046691, rhbz#2060516, rhbz#2050415
+
+* Wed Mar 23 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.4.1.el9_0]
+- vdpa/mlx5: Fix tracking of current number of VQs (Cindy Lu) [2055451]
+- vdpa/mlx5: Fix is_index_valid() to refer to features (Cindy Lu) [2055451]
+- vdpa: Protect vdpa reset with cf_mutex (Cindy Lu) [2055451]
+- vdpa: Avoid taking cf_mutex lock on get status (Cindy Lu) [2055451]
+- vdpa/vdpa_sim_net: Report max device capabilities (Cindy Lu) [2055451]
+- vdpa: Use BIT_ULL for bit operations (Cindy Lu) [2055451]
+- vdpa/vdpa_sim: Configure max supported virtqueues (Cindy Lu) [2055451]
+- vdpa/mlx5: Report max device capabilities (Cindy Lu) [2055451]
+- vdpa: Support reporting max device capabilities (Cindy Lu) [2055451]
+- vdpa/mlx5: Restore cur_num_vqs in case of failure in change_num_qps() (Cindy Lu) [2055451]
+- vdpa: Add support for returning device configuration information (Cindy Lu) [2055451]
+- vdpa/mlx5: Support configuring max data virtqueue (Cindy Lu) [2055451]
+- vdpa/mlx5: Fix config_attr_mask assignment (Cindy Lu) [2055451]
+- vdpa: Allow to configure max data virtqueues (Cindy Lu) [2055451]
+- vdpa: Read device configuration only if FEATURES_OK (Cindy Lu) [2055451]
+- vdpa: Sync calls set/get config/status with cf_mutex (Cindy Lu) [2055451]
+- vdpa/mlx5: Distribute RX virtqueues in RQT object (Cindy Lu) [2055451]
+- vdpa: Provide interface to read driver features (Cindy Lu) [2055451]
+- vdpa: clean up get_config_size ret value handling (Cindy Lu) [2055451]
+- vdpa/mlx5: Fix wrong configuration of virtio_version_1_0 (Cindy Lu) [2055451]
+- vdpa: Mark vdpa_config_ops.get_vq_notification as optional (Cindy Lu) [2055451]
+- vdpa: Avoid duplicate call to vp_vdpa get_status (Cindy Lu) [2055451]
+- net/mlx5_vdpa: Offer VIRTIO_NET_F_MTU when setting MTU (Cindy Lu) [2055451]
+- vdpa: add driver_override support (Cindy Lu) [2055451]
+- docs: document sysfs ABI for vDPA bus (Cindy Lu) [2055451]
+- ifcvf/vDPA: fix misuse virtio-net device config size for blk dev (Cindy Lu) [2055451]
+- vdpa: Consider device id larger than 31 (Cindy Lu) [2055451]
+- virtio: always enter drivers/virtio/ (Cindy Lu) [2055451]
+- vdpa: check that offsets are within bounds (Cindy Lu) [2055451]
+- vdpa_sim: avoid putting an uninitialized iova_domain (Cindy Lu) [2055451]
+- vhost-vdpa: clean irqs before reseting vdpa device (Cindy Lu) [2055451]
+- vdpa/mlx5: Forward only packets with allowed MAC address (Cindy Lu) [2055451]
+- vdpa/mlx5: Support configuration of MAC (Cindy Lu) [2055451]
+- vdpa/mlx5: Fix clearing of VIRTIO_NET_F_MAC feature bit (Cindy Lu) [2055451]
+- vdpa_sim_net: Enable user to set mac address and mtu (Cindy Lu) [2055451]
+- vdpa: Enable user to set mac and mtu of vdpa device (Cindy Lu) [2055451]
+- vdpa: Use kernel coding style for structure comments (Cindy Lu) [2055451]
+- vdpa: Introduce query of device config layout (Cindy Lu) [2055451]
+- vdpa: Introduce and use vdpa device get, set config helpers (Cindy Lu) [2055451]
+- vdpa/mlx5: Propagate link status from device to vdpa driver (Cindy Lu) [2055451]
+- vdpa/mlx5: Rename control VQ workqueue to vdpa wq (Cindy Lu) [2055451]
+- vdpa/mlx5: Remove mtu field from vdpa net device (Cindy Lu) [2055451]
+- vdpa: add new attribute VDPA_ATTR_DEV_MIN_VQ_SIZE (Cindy Lu) [2055451]
+- virtio_vdpa: setup correct vq size with callbacks get_vq_num_{max,min} (Cindy Lu) [2055451]
+- vdpa: min vq num of vdpa device cannot be greater than max vq num (Cindy Lu) [2055451]
+- vdpa: add new callback get_vq_num_min in vdpa_config_ops (Cindy Lu) [2055451]
+- vp_vdpa: add vq irq offloading support (Cindy Lu) [2055451]
+- vdpa: fix typo (Cindy Lu) [2055451]
+- vhost-vdpa: Fix the wrong input in config_cb (Cindy Lu) [2055451]
+- vhost_vdpa: unset vq irq before freeing irq (Cindy Lu) [2055451]
+- vdpa: potential uninitialized return in vhost_vdpa_va_map() (Cindy Lu) [2055451]
+- vdpa/mlx5: Avoid executing set_vq_ready() if device is reset (Cindy Lu) [2055451]
+- vdpa/mlx5: Clear ready indication for control VQ (Cindy Lu) [2055451]
+- vdpa: Support transferring virtual addressing during DMA mapping (Cindy Lu) [2055451]
+- vdpa: factor out vhost_vdpa_pa_map() and vhost_vdpa_pa_unmap() (Cindy Lu) [2055451]
+- vdpa: Add an opaque pointer for vdpa_config_ops.dma_map() (Cindy Lu) [2055451]
+- vhost-iotlb: Add an opaque pointer for vhost IOTLB (Cindy Lu) [2055451]
+- vhost-vdpa: Handle the failure of vdpa_reset() (Cindy Lu) [2055451]
+- vdpa: Add reset callback in vdpa_config_ops (Cindy Lu) [2055451]
+- vdpa: Fix some coding style issues (Cindy Lu) [2055451]
+- vdpa: Make use of PFN_PHYS/PFN_UP/PFN_DOWN helper macro (Cindy Lu) [2055451]
+- vdpa/mlx5: Add multiqueue support (Cindy Lu) [2055451]
+- vdpa/mlx5: Add support for control VQ and MAC setting (Cindy Lu) [2055451]
+- vdpa/mlx5: Ensure valid indices are provided (Cindy Lu) [2055451]
+- vdpa/mlx5: Decouple virtqueue callback from struct mlx5_vdpa_virtqueue (Cindy Lu) [2055451]
+- vdpa/mlx5: function prototype modifications in preparation to control VQ (Cindy Lu) [2055451]
+- vdpa/mlx5: Remove redundant header file inclusion (Cindy Lu) [2055451]
+- vDPA/ifcvf: enable multiqueue and control vq (Cindy Lu) [2055451]
+- vDPA/ifcvf: detect and use the onboard number of queues directly (Cindy Lu) [2055451]
+- vDPA/ifcvf: implement management netlink framework for ifcvf (Cindy Lu) [2055451]
+- vDPA/ifcvf: introduce get_dev_type() which returns virtio dev id (Cindy Lu) [2055451]
+Resolves: rhbz#2055451
+
+* Tue Mar 22 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.3.1.el9_0]
+- ipv6: fix skb drops in igmp6_event_query() and igmp6_event_report() (Hangbin Liu) [2059308] {CVE-2022-0742}
+- redhat/configs: aarch64: Fix PAC/BTI config settings (Mark Salter) [2063215]
+- RHEL9.0: arch_hw Update CONFIG_MOUSE_VSXXXAA=m (Tony Camuso) [2062909]
+- redhat/configs: Disable KVM on POWER (Laurent Vivier) [2052898]
+- drm/ast: Create threshold values for AST2600 (Jocelyn Falempe) [2062560]
+- mm: gup: make fault_in_safe_writeable() use fixup_user_fault() (Andreas Gruenbacher) [2062797]
+- drm/vmwgfx: Fix stale file descriptors on failed usercopy (David Airlie) [2047613] {CVE-2022-22942}
+- netfilter: nf_queue: handle socket prefetch (Florian Westphal) [2060092]
+- netfilter: nf_queue: fix possible use-after-free (Florian Westphal) [2060092]
+- selftests: netfilter: add nfqueue TCP_NEW_SYN_RECV socket race test (Florian Westphal) [2060092]
+- netfilter: nf_queue: don't assume sk is full socket (Florian Westphal) [2060092]
+- scsi: mpi3mr: Fix flushing !WQ_MEM_RECLAIM events warning (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fix memory leaks (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fix reporting of actual data transfer size (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fix cmnd getting marked as in use forever (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fix hibernation issue (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fix printing of pending I/O count (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fix deadlock while canceling the fw event (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Fixes around reply request queues (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Enhanced Task Management Support Reply handling (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Use TM response codes from MPI3 headers (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Increase internal cmnds timeout to 60s (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Do access status validation before adding devices (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Update MPI3 headers - part2 (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Update MPI3 headers - part1 (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Don't reset IOC if cmnds flush with reset status (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Replace spin_lock() with spin_lock_irqsave() (Tomas Henzl) [2056626]
+- scsi: mpi3mr: Add debug APIs based on logging_level bits (Tomas Henzl) [2056626]
+- x86/kvm/fpu: Remove kvm_vcpu_arch.guest_supported_xcr0 (Leonardo Bras) [2043545]
+- x86/kvm/fpu: Limit guest user_xfeatures to supported bits of XCR0 (Leonardo Bras) [2043545]
+- KVM: x86: Move CPUID.(EAX=0x12,ECX=1) mangling to __kvm_update_cpuid_runtime() (Leonardo Bras) [2043545]
+- KVM: x86: Do runtime CPUID update before updating vcpu->arch.cpuid_entries (Leonardo Bras) [2043545]
+- x86/fpu: Fix inline prefix warnings (Leonardo Bras) [2043545]
+- kvm: x86: Emulate IA32_XFD_ERR for guest (Leonardo Bras) [2043545]
+- x86/fpu: Prepare xfd_err in struct fpu_guest (Leonardo Bras) [2043545]
+- kvm: x86: Add emulation for IA32_XFD (Leonardo Bras) [2043545]
+- x86/fpu: Provide fpu_update_guest_xfd() for IA32_XFD emulation (Leonardo Bras) [2043545]
+- kvm: x86: Enable dynamic xfeatures at KVM_SET_CPUID2 (Leonardo Bras) [2043545]
+- x86/fpu: Provide fpu_enable_guest_xfd_features() for KVM (Leonardo Bras) [2043545]
+- x86/fpu: Add guest support to xfd_enable_feature() (Leonardo Bras) [2043545]
+- x86/fpu: Prepare guest FPU for dynamically enabled FPU features (Leonardo Bras) [2043545]
+- x86/fpu: Extend fpu_xstate_prctl() with guest permissions (Leonardo Bras) [2043545]
+- cpuid: kvm_find_kvm_cpuid_features() should be declared 'static' (Leonardo Bras) [2043545]
+- KVM: x86: Make sure KVM_CPUID_FEATURES really are KVM_CPUID_FEATURES (Leonardo Bras) [2043545]
+- KVM: x86: Add helper to consolidate core logic of SET_CPUID{2} flows (Leonardo Bras) [2043545]
+- redhat/configs: Disable watchdog components (Prarit Bhargava) [2060117]
+Resolves: rhbz#2059308, rhbz#2063215, rhbz#2062909, rhbz#2052898, rhbz#2062560, rhbz#2062797, rhbz#2047613, rhbz#2060092, rhbz#2056626, rhbz#2043545, rhbz#2060117
+
 * Wed Mar 16 2022 Herton R. Krzesinski <herton@redhat.com> [5.14.0-70.2.1.el9_0]
 - CI: Use 9.0-rt branch for rhel-9 realtime_check (Juri Lelli)
 - redhat: enable zstream release numbering for rhel 9.0 (Herton R. Krzesinski)

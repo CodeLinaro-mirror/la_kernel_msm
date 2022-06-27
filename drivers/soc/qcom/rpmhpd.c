@@ -123,7 +123,6 @@ static struct rpmhpd sdm845_nsp = {
 	.res_name = "nsp.lvl",
 };
 
-/* SDM845 RPMH powerdomains */
 static struct rpmhpd *sdm845_rpmhpds[] = {
 	[SDM845_EBI] = &sdm845_ebi,
 	[SDM845_MX] = &sdm845_mx,

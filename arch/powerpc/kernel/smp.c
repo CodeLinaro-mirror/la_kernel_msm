@@ -941,7 +941,8 @@ out:
 	return tg;
 }
 
-static int update_mask_from_threadgroup(cpumask_var_t *mask, struct thread_groups *tg, int cpu, int cpu_group_start)
+static int __init update_mask_from_threadgroup(cpumask_var_t *mask, struct thread_groups *tg,
+					       int cpu, int cpu_group_start)
 {
 	int first_thread = cpu_first_thread_sibling(cpu);
 	int i;
@@ -1572,6 +1573,7 @@ static void add_cpu_to_masks(int cpu)
 	 * add it to it's own thread sibling mask.
 	 */
 	cpumask_set_cpu(cpu, cpu_sibling_mask(cpu));
+	cpumask_set_cpu(cpu, cpu_core_mask(cpu));
 
 	for (i = first_thread; i < first_thread + threads_per_core; i++)
 		if (cpu_online(i))
@@ -1589,11 +1591,6 @@ static void add_cpu_to_masks(int cpu)
 	if (chip_id_lookup_table && ret)
 		chip_id = cpu_to_chip_id(cpu);
 
-	if (chip_id == -1) {
-		cpumask_copy(per_cpu(cpu_core_map, cpu), cpu_cpu_mask(cpu));
-		goto out;
-	}
-
 	if (shared_caches)
 		submask_fn = cpu_l2_cache_mask;
 
@@ -1602,6 +1599,10 @@ static void add_cpu_to_masks(int cpu)
 
 	/* Skip all CPUs already part of current CPU core mask */
 	cpumask_andnot(mask, cpu_online_mask, cpu_core_mask(cpu));
+
+	/* If chip_id is -1; limit the cpu_core_mask to within DIE*/
+	if (chip_id == -1)
+		cpumask_and(mask, mask, cpu_cpu_mask(cpu));
 
 	for_each_cpu(i, mask) {
 		if (chip_id == cpu_to_chip_id(i)) {
@@ -1612,7 +1613,6 @@ static void add_cpu_to_masks(int cpu)
 		}
 	}
 
-out:
 	free_cpumask_var(mask);
 }
 
@@ -1688,7 +1688,7 @@ int setup_profiling_timer(unsigned int multiplier)
 	return 0;
 }
 
-static void fixup_topology(void)
+static void __init fixup_topology(void)
 {
 	int i;
 

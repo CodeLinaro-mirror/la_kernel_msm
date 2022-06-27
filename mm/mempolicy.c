@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
 			 * memory with both reclaim and compact as well.
 			 */
 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
-				page = __alloc_pages_node(hpage_node,
-								gfp, order);
+				page = __alloc_pages(gfp, order, hpage_node, nmask);
 
 			goto out;
 		}
@@ -2195,6 +2194,16 @@ struct page *alloc_pages(gfp_t gfp, unsigned order)
 	return page;
 }
 EXPORT_SYMBOL(alloc_pages);
+
+struct folio *folio_alloc(gfp_t gfp, unsigned order)
+{
+	struct page *page = alloc_pages(gfp | __GFP_COMP, order);
+
+	if (page && order > 1)
+		prep_transhuge_page(page);
+	return (struct folio *)page;
+}
+EXPORT_SYMBOL(folio_alloc);
 
 static unsigned long alloc_pages_bulk_array_interleave(gfp_t gfp,
 		struct mempolicy *pol, unsigned long nr_pages,

@@ -831,7 +831,7 @@ static ssize_t store_rps_map(struct netdev_rx_queue *queue,
 {
 	struct rps_map *old_map, *map;
 	cpumask_var_t mask;
-	int err, cpu, i, hk_flags;
+	int err, cpu, i;
 	static DEFINE_MUTEX(rps_map_mutex);
 
 	if (!capable(CAP_NET_ADMIN))
@@ -847,8 +847,8 @@ static ssize_t store_rps_map(struct netdev_rx_queue *queue,
 	}
 
 	if (!cpumask_empty(mask)) {
-		hk_flags = HK_FLAG_DOMAIN | HK_FLAG_WQ;
-		cpumask_and(mask, mask, housekeeping_cpumask(hk_flags));
+		cpumask_and(mask, mask, housekeeping_cpumask(HK_TYPE_DOMAIN));
+		cpumask_and(mask, mask, housekeeping_cpumask(HK_TYPE_WQ));
 		if (cpumask_empty(mask)) {
 			free_cpumask_var(mask);
 			return -EINVAL;
@@ -1201,11 +1201,7 @@ static const struct sysfs_ops netdev_queue_sysfs_ops = {
 
 static ssize_t tx_timeout_show(struct netdev_queue *queue, char *buf)
 {
-	unsigned long trans_timeout;
-
-	spin_lock_irq(&queue->_xmit_lock);
-	trans_timeout = queue->trans_timeout;
-	spin_unlock_irq(&queue->_xmit_lock);
+	unsigned long trans_timeout = atomic_long_read(&queue->trans_timeout);
 
 	return sprintf(buf, fmt_ulong, trans_timeout);
 }

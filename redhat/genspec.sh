@@ -25,6 +25,7 @@ UPSTREAM_BRANCH=${18}
 INCLUDE_FEDORA_FILES=${19}
 INCLUDE_RHEL_FILES=${20}
 BUILDID=${21}
+AUTOMOTIVEBUILD=${22}
 
 RPMVERSION=${KVERSION}.${KPATCHLEVEL}.${KSUBLEVEL}
 clogf="$SOURCES/changelog"
@@ -75,7 +76,7 @@ UPSTREAM="$(git rev-parse -q --verify origin/$UPSTREAM_BRANCH || \
 # This change means that a changelog will have length 1 even
 # when there are no new entries.
 # Lenght=1 is actualy a length of 0 because of this.
-echo "- [rt] build $PACKAGE_NAME-$RPM_VERSION [$RTBZ]" >> "$clogf"
+echo "- [automotive] build $PACKAGE_NAME-$RPM_VERSION" >> "$clogf"
  
 git log --topo-order --no-merges -z $GIT_NOTES "$GIT_FORMAT" \
 	^${UPSTREAM} ${EXCLUDE:+^$EXCLUDE} "$lasttag".. | ${0%/*}/genlog.py >> "$clogf"

@@ -160,7 +160,6 @@ Code  Seq#    Include File                                           Comments
 'K'   all    linux/kd.h
 'L'   00-1F  linux/loop.h                                            conflict!
 'L'   10-1F  drivers/scsi/mpt3sas/mpt3sas_ctl.h                      conflict!
-'L'   20-2F  linux/lightnvm.h
 'L'   E0-FF  linux/ppdd.h                                            encrypted disk device driver
                                                                      <http://linux01.gwdg.de/~alatham/ppdd.html>
 'M'   all    linux/soundcard.h                                       conflict!
@@ -369,6 +368,8 @@ Code  Seq#    Include File                                           Comments
                                                                      <mailto:thomas@winischhofer.net>
 0xF6  all                                                            LTTng Linux Trace Toolkit Next Generation
                                                                      <mailto:mathieu.desnoyers@efficios.com>
+0xF8  all    arch/x86/include/uapi/asm/amd_hsmp.h                    AMD HSMP EPYC system management interface driver
+                                                                     <mailto:nchatrad@amd.com>
 0xFD  all    linux/dm-ioctl.h
 0xFE  all    linux/isst_if.h
 ====  =====  ======================================================= ================================================================

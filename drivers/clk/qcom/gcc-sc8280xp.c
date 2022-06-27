@@ -4085,14 +4085,14 @@ static struct clk_branch gcc_pcie_2b_slv_q2a_axi_clk = {
 	},
 };
 
-static struct clk_branch gcc_pcie_3a3b_clkref_clK = {
+static struct clk_branch gcc_pcie_3a3b_clkref_clk = {
 	.halt_reg = 0x8c038,
 	.halt_check = BRANCH_HALT,
 	.clkr = {
 		.enable_reg = 0x8c038,
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
-			.name = "gcc_pcie_3a3b_clkref_clK",
+			.name = "gcc_pcie_3a3b_clkref_clk",
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -6720,7 +6720,6 @@ static struct clk_branch gcc_usb4_tmu_clk = {
 	},
 };
 
-
 static struct clk_branch gcc_video_axi0_clk = {
 	.halt_reg = 0x28010,
 	.halt_check = BRANCH_HALT_SKIP,
@@ -7000,7 +6999,7 @@ static struct clk_regmap *gcc_sc8280xp_clocks[] = {
 	[GCC_PCIE_2B_PIPEDIV2_CLK] = &gcc_pcie_2b_pipediv2_clk.clkr,
 	[GCC_PCIE_2B_SLV_AXI_CLK] = &gcc_pcie_2b_slv_axi_clk.clkr,
 	[GCC_PCIE_2B_SLV_Q2A_AXI_CLK] = &gcc_pcie_2b_slv_q2a_axi_clk.clkr,
-	[GCC_PCIE_3A3B_CLKREF_CLK] = &gcc_pcie_3a3b_clkref_clK.clkr,
+	[GCC_PCIE_3A3B_CLKREF_CLK] = &gcc_pcie_3a3b_clkref_clk.clkr,
 	[GCC_PCIE_3A_AUX_CLK] = &gcc_pcie_3a_aux_clk.clkr,
 	[GCC_PCIE_3A_AUX_CLK_SRC] = &gcc_pcie_3a_aux_clk_src.clkr,
 	[GCC_PCIE_3A_CFG_AHB_CLK] = &gcc_pcie_3a_cfg_ahb_clk.clkr,
@@ -7435,7 +7434,7 @@ static int gcc_sc8280xp_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id gcc_sc8280xp_match_table[] = {
-	{ .compatible = "qcom,sc8280xp-gcc" },
+	{ .compatible = "qcom,gcc-sc8280xp" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, gcc_sc8280xp_match_table);
@@ -7461,4 +7460,4 @@ static void __exit gcc_sc8280xp_exit(void)
 module_exit(gcc_sc8280xp_exit);
 
 MODULE_DESCRIPTION("Qualcomm SC8280XP GCC driver");
-MODULE_LICENSE("GPL v2");
+MODULE_LICENSE("GPL");

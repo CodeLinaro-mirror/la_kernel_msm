@@ -34,73 +34,73 @@
 	};
 
 	aggre1_noc: aggre1-noc-interconnect {
-		compatible = "qcom,sc8280xp-aggre1_noc";
+		compatible = "qcom,sc8280xp-aggre1-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
-	aggre2-noc-interconnect {
-		compatible = "qcom,sc8280xp-aggre2_noc";
+	aggre2_noc: aggre2-noc-interconnect {
+		compatible = "qcom,sc8280xp-aggre2-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	clk_virt: clk-virt-interconnect {
-		compatible = "qcom,sc8280xp-clk_virt";
+		compatible = "qcom,sc8280xp-clk-virt";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	config_noc: config-noc-interconnect {
-		compatible = "qcom,sc8280xp-config_noc";
+		compatible = "qcom,sc8280xp-config-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	dc-noc-interconnect {
-		compatible = "qcom,sc8280xp-dc_noc";
+		compatible = "qcom,sc8280xp-dc-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	gem_noc: gem-noc-interconnect {
-		compatible = "qcom,sc8280xp-gem_noc";
+		compatible = "qcom,sc8280xp-gem-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	lpass-ag-noc-interconnect {
-		compatible = "qcom,sc8280xp-lpass_ag_noc";
+		compatible = "qcom,sc8280xp-lpass-ag-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	mc_virt: mc-virt-interconnect {
-		compatible = "qcom,sc8280xp-mc_virt";
+		compatible = "qcom,sc8280xp-mc-virt";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	mmss-noc-interconnect {
-		compatible = "qcom,sc8280xp-mmss_noc";
+		compatible = "qcom,sc8280xp-mmss-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	nspa_noc: nspa-noc-interconnect {
-		compatible = "qcom,sc8280xp-nspa_noc";
+		compatible = "qcom,sc8280xp-nspa-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	nspb_noc: nspb-noc-interconnect {
-		compatible = "qcom,sc8280xp-nspb_noc";
+		compatible = "qcom,sc8280xp-nspb-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
 
 	system-noc-interconnect {
-		compatible = "qcom,sc8280xp-system_noc_main";
+		compatible = "qcom,sc8280xp-system-noc";
 		#interconnect-cells = <2>;
 		qcom,bcm-voters = <&apps_bcm_voter>;
 	};
@@ -698,7 +698,7 @@
 		compatible = "simple-bus";
 
 		gcc: clock-controller@100000 {
-			compatible = "qcom,sc8280xp-gcc";
+			compatible = "qcom,gcc-sc8280xp";
 			reg = <0x0 0x00100000 0x0 0x1f0000>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
@@ -711,7 +711,7 @@
 				      "sleep_clk",
 				      "usb3_phy_wrapper_gcc_usb30_pipe_clk",
 				      "usb3_uni_phy_sec_gcc_usb30_pipe_clk";
-			power-domain = <&rpmhpd SC8280XP_CX>;
+			power-domains = <&rpmhpd SC8280XP_CX>;
 		};
 
 		ipcc: mailbox@408000 {
@@ -911,6 +911,24 @@
 
 			status = "disabled";
 
+			qup2_spi16: spi@880000 {
+				compatible = "qcom,geni-spi";
+				reg = <0 0x00880000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP2_S0_CLK>;
+				interrupts = <GIC_SPI 373 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup2_spi16_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_2 0 &clk_virt SLAVE_QUP_CORE_2 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_2 0>,
+						<&aggre1_noc MASTER_QUP_2 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				spi-max-frequency = <50000000>;
+				status = "disabled";
+			};
+
 			qup2_uart17: serial@884000 {
 				compatible = "qcom,geni-uart";
 				reg = <0 0x00884000 0 0x4000>;
@@ -925,7 +943,57 @@
 				status = "disabled";
 			};
 
-			qup2_i2c5: i2c@894000 {
+			qup2_i2c18: i2c@888000 {
+				compatible = "qcom,geni-i2c";
+				reg = <0 0x00888000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP2_S2_CLK>;
+				interrupts = <GIC_SPI 584 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				power-domains = <&rpmhpd SC8280XP_CX>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup2_i2c18_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_2 0 &clk_virt SLAVE_QUP_CORE_2 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_2 0>,
+						<&aggre1_noc MASTER_QUP_2 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				status = "disabled";
+			};
+
+			qup2_spi22: spi@898000 {
+				compatible = "qcom,geni-spi";
+				reg = <0 0x00898000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP2_S6_CLK>;
+				interrupts = <GIC_SPI 833 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup2_spi22_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_2 0 &clk_virt SLAVE_QUP_CORE_2 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_2 0>,
+						<&aggre1_noc MASTER_QUP_2 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				spi-max-frequency = <50000000>;
+				status = "disabled";
+			};
+
+			qup2_uart23: serial@89c000 {
+				compatible = "qcom,geni-uart";
+				reg = <0 0x0089c000 0 0x4000>;
+				clocks = <&gcc GCC_QUPV3_WRAP2_S7_CLK>;
+				clock-names = "se";
+				interrupts = <GIC_SPI 834 IRQ_TYPE_LEVEL_HIGH>;
+				operating-points-v2 = <&qup_opp_table_100mhz>;
+				power-domains = <&rpmhpd SC8280XP_CX>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_2 0 &clk_virt SLAVE_QUP_CORE_2 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_2 0>;
+				interconnect-names = "qup-core", "qup-config";
+				status = "disabled";
+			};
+
+			qup2_i2c21: i2c@894000 {
 				compatible = "qcom,geni-i2c";
 				reg = <0 0x00894000 0 0x4000>;
 				clock-names = "se";
@@ -955,6 +1023,44 @@
 			ranges;
 
 			status = "disabled";
+
+			qup0_i2c0: i2c@980000 {
+				compatible = "qcom,geni-i2c";
+				reg = <0 0x00980000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP0_S0_CLK>;
+				interrupts = <GIC_SPI 601 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				power-domains = <&rpmhpd SC8280XP_CX>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup0_i2c0_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_0 0 &clk_virt SLAVE_QUP_CORE_0 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_0 0>,
+						<&aggre1_noc MASTER_QUP_0 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				status = "disabled";
+			};
+
+			qup0_i2c1: i2c@984000 {
+				compatible = "qcom,geni-i2c";
+				reg = <0 0x00984000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP0_S1_CLK>;
+				interrupts = <GIC_SPI 602 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				power-domains = <&rpmhpd SC8280XP_CX>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup0_i2c1_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_0 0 &clk_virt SLAVE_QUP_CORE_0 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_0 0>,
+						<&aggre1_noc MASTER_QUP_0 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				status = "disabled";
+			};
+
+			// 4W HS UART To be added
 
 			qup0_i2c4: i2c@990000 {
 				compatible = "qcom,geni-i2c";
@@ -986,6 +1092,60 @@
 			ranges;
 
 			status = "disabled";
+
+			qup1_spi9: spi@a84000 {
+				compatible = "qcom,geni-spi";
+				reg = <0 0x00a84000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP1_S1_CLK>;
+				interrupts = <GIC_SPI 354 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup1_spi9_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_1 0 &clk_virt SLAVE_QUP_CORE_1 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_1 0>,
+						<&aggre1_noc MASTER_QUP_1 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				spi-max-frequency = <50000000>;
+				status = "disabled";
+			};
+
+			qup1_i2c12: i2c@a90000 {
+				compatible = "qcom,geni-i2c";
+				reg = <0 0x00a90000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP1_S4_CLK>;
+				interrupts = <GIC_SPI 357 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				power-domains = <&rpmhpd SC8280XP_CX>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup1_i2c12_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_1 0 &clk_virt SLAVE_QUP_CORE_1 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_1 0>,
+						<&aggre1_noc MASTER_QUP_1 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				status = "disabled";
+			};
+
+			qup1_i2c15: i2c@a9c000 {
+				compatible = "qcom,geni-i2c";
+				reg = <0 0x00a9c000 0 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP1_S7_CLK>;
+				interrupts = <GIC_SPI 836 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				power-domains = <&rpmhpd SC8280XP_CX>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup1_i2c15_default>;
+				interconnects = <&clk_virt MASTER_QUP_CORE_1 0 &clk_virt SLAVE_QUP_CORE_1 0>,
+						<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_QUP_1 0>,
+						<&aggre1_noc MASTER_QUP_1 0 &mc_virt SLAVE_EBI1 0>;
+				interconnect-names = "qup-core", "qup-config", "qup-memory";
+				status = "disabled";
+			};
 		};
 
 		spmi_bus: spmi@c440000 {
@@ -1163,6 +1323,92 @@
 			interrupt-controller;
 			#interrupt-cells = <2>;
 			gpio-ranges = <&tlmm 0 0 230>;
+
+			qup0_i2c0_default: qup0-i2c0-default {
+				mux {
+					pins = "gpio135", "gpio136";
+					function = "qup0";
+				};
+
+				config {
+					pins = "gpio135", "gpio136";
+					drive-strength = <0x02>;
+					bias-pull-up;
+				};
+			};
+
+			qup0_i2c1_default: qup0-i2c1-default {
+				mux {
+					pins = "gpio158", "gpio159";
+					function = "qup1";
+				};
+
+				config {
+					pins = "gpio158", "gpio159";
+					drive-strength = <0x02>;
+					bias-pull-up;
+				};
+			};
+
+			qup1_spi9_default: qup1-spi0-default {
+				pins = "gpio41", "gpio42", "gpio43", "gpio44";
+				function = "qup9";
+				drive-strength = <6>;
+				bias-disable;
+			};
+
+			qup1_i2c12_default: qup1-i2c12-default {
+				mux {
+					pins = "gpio0", "gpio1";
+					function = "qup12";
+				};
+
+				config {
+					pins = "gpio0", "gpio1";
+					drive-strength = <0x02>;
+					bias-pull-up;
+				};
+			};
+
+			qup1_i2c15_default: qup1-i2c15-default {
+				mux {
+					pins = "gpio36", "gpio37";
+					function = "qup15";
+				};
+
+				config {
+					pins = "gpio36", "gpio37";
+					drive-strength = <0x02>;
+					bias-pull-up;
+				};
+			};
+
+			qup2_spi16_default: qup2-spi16-default {
+				pins = "gpio70", "gpio71", "gpio72", "gpio73";
+				function = "qup16";
+				drive-strength = <6>;
+				bias-disable;
+			};
+
+			qup2_i2c18_default: qup2-i2c18-default {
+				mux {
+					pins = "gpio66", "gpio67";
+					function = "qup18";
+				};
+
+				config {
+					pins = "gpio66", "gpio67";
+					drive-strength = <0x02>;
+					bias-pull-up;
+				};
+			};
+
+			qup2_spi22_default: qup2-spi22-default {
+				pins = "gpio85", "gpio86", "gpio83", "gpio84";
+				function = "qup22";
+				drive-strength = <6>;
+				bias-disable;
+			};
 		};
 
 		ufs_mem_hc: ufshc@1d84000 {
@@ -1341,7 +1587,7 @@
 					  <40 140 14>,
 					  <54 263 1>,
 					  <55 306 4>,
-					  <59 213 3>,
+					  <59 312 3>,
 					  <62 374 2>,
 					  <64 434 2>,
 					  <66 438 3>,
@@ -1497,6 +1743,58 @@
 			};
 		};
 
+		usb_2: usb@a4f8800 {
+			compatible = "qcom,sc8280xp-dwc3", "qcom,dwc3";
+			reg = <0 0x0a4f8800 0 0x400>;
+			status = "disabled";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			clocks = <&gcc GCC_USB30_MP_MASTER_CLK>,
+				 <&gcc GCC_CFG_NOC_USB3_MP_AXI_CLK>,
+				 <&gcc GCC_AGGRE_USB3_MP_AXI_CLK>,
+				 <&gcc GCC_USB30_MP_MOCK_UTMI_CLK>,
+				 <&gcc GCC_USB30_MP_SLEEP_CLK>,
+				 <&gcc GCC_AGGRE_USB_NOC_AXI_CLK>,
+				 <&gcc GCC_AGGRE_USB_NOC_NORTH_AXI_CLK>,
+				 <&gcc GCC_AGGRE_USB_NOC_SOUTH_AXI_CLK>,
+				 <&gcc GCC_SYS_NOC_USB_AXI_CLK>;
+			clock-names = "core", "iface", "bus_aggr", "utmi", "sleep",
+				      "noc_aggr", "noc_aggr_north", "noc_aggr_south", "noc_sys";
+
+			assigned-clocks = <&gcc GCC_USB30_MP_MOCK_UTMI_CLK>,
+					  <&gcc GCC_USB30_MP_MASTER_CLK>;
+			assigned-clock-rates = <19200000>, <200000000>;
+
+			interrupts-extended = <&pdc 127 IRQ_TYPE_EDGE_RISING>,
+					      <&pdc 126 IRQ_TYPE_EDGE_RISING>,
+					      <&pdc 129 IRQ_TYPE_EDGE_RISING>,
+					      <&pdc 128 IRQ_TYPE_EDGE_RISING>;
+			interrupt-names = "hs_phy_irq", "dp_hs_phy_irq",
+					  "dm_hs_phy_irq", "ss_phy_irq";
+
+			power-domains = <&gcc USB30_MP_GDSC>;
+
+			resets = <&gcc GCC_USB30_MP_BCR>;
+
+			interconnects = <&aggre1_noc MASTER_USB3_MP 0 &mc_virt SLAVE_EBI1 0>,
+				        <&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_USB3_MP 0>;
+			interconnect-names = "usb-ddr", "apps-usb";
+
+			usb_2_dwc3: usb@a400000 {
+				compatible = "snps,dwc3";
+				reg = <0 0x0a400000 0 0xd93c>;
+				interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
+				iommus = <&apps_smmu 0x800 0x0>;
+				phys = <&usb_2_hsphy0>, <&usb_2_ssphy0>,
+				       <&usb_2_hsphy1>, <&usb_2_ssphy1>,
+				       <&usb_2_hsphy2>,
+				       <&usb_2_hsphy3>;
+				phy-names = "usb2-phy", "usb3-phy";
+			};
+		};
+
 		usb_0_hsphy: phy@88e5000 {
 			compatible = "qcom,sc8280xp-usb-hs-phy",
 				     "qcom,usb-snps-hs-5nm-phy";
@@ -1521,6 +1819,58 @@
 			clock-names = "ref";
 
 			resets = <&gcc GCC_QUSB2PHY_SEC_BCR>;
+		};
+
+		usb_2_hsphy0: phy@88e7000 {
+			compatible = "qcom,sc8280xp-usb-hs-phy",
+				     "qcom,usb-snps-hs-5nm-phy";
+			reg = <0 0x088e7000 0 0x400>;
+			status = "disabled";
+			#phy-cells = <0>;
+
+			clocks = <&gcc GCC_USB2_HS0_CLKREF_CLK>;
+			clock-names = "ref";
+
+			resets = <&gcc GCC_QUSB2PHY_HS0_MP_BCR>;
+		};
+
+		usb_2_hsphy1: phy@88e8000 {
+			compatible = "qcom,sc8280xp-usb-hs-phy",
+				     "qcom,usb-snps-hs-5nm-phy";
+			reg = <0 0x088e8000 0 0x400>;
+			status = "disabled";
+			#phy-cells = <0>;
+
+			clocks = <&gcc GCC_USB2_HS1_CLKREF_CLK>;
+			clock-names = "ref";
+
+			resets = <&gcc GCC_QUSB2PHY_HS1_MP_BCR>;
+		};
+
+		usb_2_hsphy2: phy@88e9000 {
+			compatible = "qcom,sc8280xp-usb-hs-phy",
+				     "qcom,usb-snps-hs-5nm-phy";
+			reg = <0 0x088e9000 0 0x400>;
+			status = "disabled";
+			#phy-cells = <0>;
+
+			clocks = <&gcc GCC_USB2_HS2_CLKREF_CLK>;
+			clock-names = "ref";
+
+			resets = <&gcc GCC_QUSB2PHY_HS2_MP_BCR>;
+		};
+
+		usb_2_hsphy3: phy@88ea000 {
+			compatible = "qcom,sc8280xp-usb-hs-phy",
+				     "qcom,usb-snps-hs-5nm-phy";
+			reg = <0 0x088ea000 0 0x400>;
+			status = "disabled";
+			#phy-cells = <0>;
+
+			clocks = <&gcc GCC_USB2_HS3_CLKREF_CLK>;
+			clock-names = "ref";
+
+			resets = <&gcc GCC_QUSB2PHY_HS3_MP_BCR>;
 		};
 
 		usb_0_qmpphy: phy-wrapper@88ec000 {
@@ -1594,6 +1944,70 @@
 				clocks = <&gcc GCC_USB3_SEC_PHY_PIPE_CLK>;
 				clock-names = "pipe0";
 				clock-output-names = "usb1_phy_pipe_clk_src";
+			};
+		};
+
+		usb_2_qmpphy0: phy-wrapper@88ef000 {
+			compatible = "qcom,sc8280xp-qmp-usb3-uni-phy";
+			reg = <0 0x088ef000 0 0x1c8>;
+			status = "disabled";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			clocks = <&gcc GCC_USB3_MP_PHY_AUX_CLK>,
+				 <&rpmhcc RPMH_CXO_CLK>,
+				 <&gcc GCC_USB3_MP0_CLKREF_CLK>,
+				 <&gcc GCC_USB3_MP_PHY_COM_AUX_CLK>;
+			clock-names = "aux", "ref_clk_src", "ref", "com_aux";
+
+			resets = <&gcc GCC_USB3_UNIPHY_MP0_BCR>,
+				 <&gcc GCC_USB3UNIPHY_PHY_MP0_BCR>;
+			reset-names = "phy", "common";
+
+			power-domains = <&gcc USB30_MP_GDSC>;
+
+			usb_2_ssphy0: phy@88efe00 {
+				reg = <0 0x088efe00 0 0x160>,
+				      <0 0x088f0000 0 0x1ec>,
+				      <0 0x088ef200 0 0x1f0>;
+				#phy-cells = <0>;
+				#clock-cells = <0>;
+				clocks = <&gcc GCC_USB3_MP_PHY_PIPE_0_CLK>;
+				clock-names = "pipe0";
+				clock-output-names = "usb2_phy0_pipe_clk";
+			};
+		};
+
+		usb_2_qmpphy1: phy-wrapper@88f1000 {
+			compatible = "qcom,sc8280xp-qmp-usb3-uni-phy";
+			reg = <0 0x088f1000 0 0x1c8>;
+			status = "disabled";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			clocks = <&gcc GCC_USB3_MP_PHY_AUX_CLK>,
+				 <&rpmhcc RPMH_CXO_CLK>,
+				 <&gcc GCC_USB3_MP1_CLKREF_CLK>,
+				 <&gcc GCC_USB3_MP_PHY_COM_AUX_CLK>;
+			clock-names = "aux", "ref_clk_src", "ref", "com_aux";
+
+			resets = <&gcc GCC_USB3_UNIPHY_MP1_BCR>,
+				 <&gcc GCC_USB3UNIPHY_PHY_MP1_BCR>;
+			reset-names = "phy", "common";
+
+			power-domains = <&gcc USB30_MP_GDSC>;
+
+			usb_2_ssphy1: phy@88efe00 {
+				reg = <0 0x088f1e00 0 0x160>,
+				      <0 0x088f2000 0 0x1ec>,
+				      <0 0x088f1200 0 0x1f0>;
+				#phy-cells = <0>;
+				#clock-cells = <0>;
+				clocks = <&gcc GCC_USB3_MP_PHY_PIPE_1_CLK>;
+				clock-names = "pipe0";
+				clock-output-names = "usb2_phy1_pipe_clk";
 			};
 		};
 
@@ -1824,8 +2238,9 @@
 
 		dispcc0: clock-controller@af00000 {
 			compatible = "qcom,sc8280xp-dispcc0";
-			reg = <0 0x0af00000 0 0x10000>;
-			clocks = <&rpmhcc RPMH_CXO_CLK>,
+			reg = <0 0x0af00000 0 0x20000>;
+			clocks = <&gcc GCC_DISP_AHB_CLK>,
+			         <&rpmhcc RPMH_CXO_CLK>,
 			         <0>,
 			         <0>,
 			         <0>,
@@ -1834,7 +2249,8 @@
 			         <0>,
 			         <0>,
 			         <0>;
-			clock-names = "bi_tcxo",
+			clock-names = "ahb",
+				      "bi_tcxo",
 				      "gcc_disp_gpll0_clk_src",
 				      "gcc_disp_gpll0_div_clk_src",
 				      "dsi0_phy_pll_out_byteclk",
@@ -1843,9 +2259,45 @@
 				      "dsi1_phy_pll_out_dsiclk",
 				      "dp_link_clk_divsel_ten",
 				      "dp_vco_divided_clk_src_mux";
+			power-domains = <&rpmhpd SC8280XP_MMCX>;
+			required-opps = <&rpmhpd_opp_nom>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
+
+			status = "disabled";
+		};
+
+		dispcc1: clock-controller@22100000 {
+			compatible = "qcom,sc8280xp-dispcc1";
+			reg = <0 0x22100000 0 0x20000>;
+			clocks = <&gcc GCC_DISP_AHB_CLK>,
+			         <&rpmhcc RPMH_CXO_CLK>,
+			         <0>,
+			         <0>,
+			         <0>,
+			         <0>,
+			         <0>,
+			         <0>,
+			         <0>,
+			         <0>;
+			clock-names = "ahb",
+				      "bi_tcxo",
+				      "gcc_disp_gpll0_clk_src",
+				      "gcc_disp_gpll0_div_clk_src",
+				      "dsi0_phy_pll_out_byteclk",
+				      "dsi0_phy_pll_out_dsiclk",
+				      "dsi1_phy_pll_out_byteclk",
+				      "dsi1_phy_pll_out_dsiclk",
+				      "dp_link_clk_divsel_ten",
+				      "dp_vco_divided_clk_src_mux";
+			power-domains = <&rpmhpd SC8280XP_MMCX>;
+			required-opps = <&rpmhpd_opp_nom>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			#power-domain-cells = <1>;
+
+			status = "disabled";
 		};
 	};
 

@@ -333,7 +333,7 @@ S:	Maintained
 F:	drivers/platform/x86/acer-wmi.c
 
 ACPI
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Len Brown <lenb@kernel.org>
 L:	linux-acpi@vger.kernel.org
 S:	Supported
@@ -354,7 +354,7 @@ F:	include/linux/fwnode.h
 F:	tools/power/acpi/
 
 ACPI APEI
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Len Brown <lenb@kernel.org>
 R:	James Morse <james.morse@arm.com>
 R:	Tony Luck <tony.luck@intel.com>
@@ -364,7 +364,6 @@ F:	drivers/acpi/apei/
 
 ACPI COMPONENT ARCHITECTURE (ACPICA)
 M:	Robert Moore <robert.moore@intel.com>
-M:	Erik Kaneda <erik.kaneda@intel.com>
 M:	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 L:	linux-acpi@vger.kernel.org
 L:	devel@acpica.org
@@ -402,8 +401,14 @@ L:	platform-driver-x86@vger.kernel.org
 S:	Maintained
 F:	drivers/platform/x86/i2c-multi-instantiate.c
 
+ACPI PCC(Platform Communication Channel) MAILBOX DRIVER
+M:	Sudeep Holla <sudeep.holla@arm.com>
+L:	linux-acpi@vger.kernel.org
+S:	Supported
+F:	drivers/mailbox/pcc.c
+
 ACPI PMIC DRIVERS
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Len Brown <lenb@kernel.org>
 R:	Andy Shevchenko <andy@kernel.org>
 R:	Mika Westerberg <mika.westerberg@linux.intel.com>
@@ -972,12 +977,28 @@ L:	platform-driver-x86@vger.kernel.org
 S:	Maintained
 F:	drivers/platform/x86/amd-pmc.*
 
+AMD HSMP DRIVER
+M:	Naveen Krishna Chatradhi <naveenkrishna.chatradhi@amd.com>
+R:	Carlos Bilbao <carlos.bilbao@amd.com>
+L:	platform-driver-x86@vger.kernel.org
+S:	Maintained
+F:	Documentation/x86/amd_hsmp.rst
+F:	arch/x86/include/asm/amd_hsmp.h
+F:	arch/x86/include/uapi/asm/amd_hsmp.h
+F:	drivers/platform/x86/amd_hsmp.c
+
 AMD POWERPLAY
 M:	Evan Quan <evan.quan@amd.com>
 L:	amd-gfx@lists.freedesktop.org
 S:	Supported
 T:	git https://gitlab.freedesktop.org/agd5f/linux.git
 F:	drivers/gpu/drm/amd/pm/powerplay/
+
+AMD PTDMA DRIVER
+M:	Sanjay R Mehta <sanju.mehta@amd.com>
+L:	dmaengine@vger.kernel.org
+S:	Maintained
+F:	drivers/dma/ptdma/
 
 AMD SEATTLE DEVICE TREE SUPPORT
 M:	Brijesh Singh <brijeshkumar.singh@amd.com>
@@ -2712,11 +2733,13 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/iwamatsu/linux-visconti.git
 F:	Documentation/devicetree/bindings/arm/toshiba.yaml
 F:	Documentation/devicetree/bindings/net/toshiba,visconti-dwmac.yaml
 F:	Documentation/devicetree/bindings/gpio/toshiba,gpio-visconti.yaml
+F:	Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
 F:	Documentation/devicetree/bindings/pinctrl/toshiba,tmpv7700-pinctrl.yaml
 F:	Documentation/devicetree/bindings/watchdog/toshiba,visconti-wdt.yaml
 F:	arch/arm64/boot/dts/toshiba/
 F:	drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
 F:	drivers/gpio/gpio-visconti.c
+F:	drivers/pci/controller/dwc/pcie-visconti.c
 F:	drivers/pinctrl/visconti/
 F:	drivers/watchdog/visconti_wdt.c
 N:	visconti
@@ -3085,6 +3108,7 @@ W:	https://github.com/linux-audit
 T:	git git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git
 F:	include/asm-generic/audit_*.h
 F:	include/linux/audit.h
+F:	include/linux/audit_arch.h
 F:	include/uapi/linux/audit.h
 F:	kernel/audit*
 F:	lib/*audit.c
@@ -3283,6 +3307,8 @@ M:	Jens Axboe <axboe@kernel.dk>
 L:	linux-block@vger.kernel.org
 S:	Maintained
 T:	git git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git
+F:	Documentation/ABI/stable/sysfs-block
+F:	Documentation/block/
 F:	block/
 F:	drivers/block/
 F:	include/linux/blk*
@@ -3588,7 +3614,7 @@ M:	Al Cooper <alcooperx@gmail.com>
 L:	linux-usb@vger.kernel.org
 L:	bcm-kernel-feedback-list@broadcom.com
 S:	Maintained
-F:	Documentation/devicetree/bindings/usb/brcm,bdc.txt
+F:	Documentation/devicetree/bindings/usb/brcm,bdc.yaml
 F:	drivers/usb/gadget/udc/bdc/
 
 BROADCOM BMIPS CPUFREQ DRIVER
@@ -4807,7 +4833,7 @@ W:	http://www.arm.com/products/processors/technologies/biglittleprocessing.php
 F:	drivers/cpufreq/vexpress-spc-cpufreq.c
 
 CPU FREQUENCY SCALING FRAMEWORK
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Viresh Kumar <viresh.kumar@linaro.org>
 L:	linux-pm@vger.kernel.org
 S:	Maintained
@@ -4825,7 +4851,7 @@ F:	kernel/sched/cpufreq*.c
 F:	tools/testing/selftests/cpufreq/
 
 CPU IDLE TIME MANAGEMENT FRAMEWORK
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Daniel Lezcano <daniel.lezcano@linaro.org>
 L:	linux-pm@vger.kernel.org
 S:	Maintained
@@ -7546,7 +7572,7 @@ W:	ftp://ftp.openlinux.org/pub/people/hch/vxfs
 F:	fs/freevxfs/
 
 FREEZER
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Pavel Machek <pavel@ucw.cz>
 L:	linux-pm@vger.kernel.org
 S:	Supported
@@ -7674,6 +7700,7 @@ M:	Ingo Molnar <mingo@redhat.com>
 R:	Peter Zijlstra <peterz@infradead.org>
 R:	Darren Hart <dvhart@infradead.org>
 R:	Davidlohr Bueso <dave@stgolabs.net>
+R:	André Almeida <andrealmeid@collabora.com>
 L:	linux-kernel@vger.kernel.org
 S:	Maintained
 T:	git git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git locking/core
@@ -7681,7 +7708,7 @@ F:	Documentation/locking/*futex*
 F:	include/asm-generic/futex.h
 F:	include/linux/futex.h
 F:	include/uapi/linux/futex.h
-F:	kernel/futex.c
+F:	kernel/futex/*
 F:	tools/perf/bench/futex*
 F:	tools/testing/selftests/futex/
 
@@ -7799,7 +7826,7 @@ S:	Supported
 F:	drivers/i2c/muxes/i2c-demux-pinctrl.c
 
 GENERIC PM DOMAINS
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Kevin Hilman <khilman@kernel.org>
 M:	Ulf Hansson <ulf.hansson@linaro.org>
 L:	linux-pm@vger.kernel.org
@@ -8265,7 +8292,7 @@ W:	http://drama.obuda.kando.hu/~fero/cgi-bin/hgafb.shtml
 F:	drivers/video/fbdev/hgafb.c
 
 HIBERNATION (aka Software Suspend, aka swsusp)
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Pavel Machek <pavel@ucw.cz>
 L:	linux-pm@vger.kernel.org
 S:	Supported
@@ -9420,6 +9447,12 @@ F:	Documentation/admin-guide/media/ipu3_rcb.svg
 F:	Documentation/userspace-api/media/v4l/pixfmt-meta-intel-ipu3.rst
 F:	drivers/staging/media/ipu3/
 
+INTEL ISHTP ECLITE DRIVER
+M:     Sumesh K Naduvalath <sumesh.k.naduvalath@intel.com>
+L:     platform-driver-x86@vger.kernel.org
+S:     Supported
+F:     drivers/platform/x86/intel/ishtp_eclite.c
+
 INTEL IXP4XX CRYPTO SUPPORT
 M:	Corentin Labbe <clabbe@baylibre.com>
 L:	linux-crypto@vger.kernel.org
@@ -9525,11 +9558,10 @@ S:	Maintained
 F:	drivers/mfd/intel_soc_pmic*
 F:	include/linux/mfd/intel_soc_pmic*
 
-INTEL PMT DRIVER
-M:	"David E. Box" <david.e.box@linux.intel.com>
-S:	Maintained
-F:	drivers/mfd/intel_pmt.c
-F:	drivers/platform/x86/intel_pmt_*
+INTEL PMT DRIVERS
+M:	David E. Box <david.e.box@linux.intel.com>
+S:	Supported
+F:	drivers/platform/x86/intel/pmt/
 
 INTEL PRO/WIRELESS 2100, 2200BG, 2915ABG NETWORK CONNECTION SUPPORT
 M:	Stanislav Yakovlev <stas.yakovlev@gmail.com>
@@ -9556,6 +9588,13 @@ M:	Mika Westerberg <mika.westerberg@linux.intel.com>
 S:	Maintained
 F:	arch/x86/include/asm/intel_scu_ipc.h
 F:	drivers/platform/x86/intel_scu_*
+
+INTEL SDSI DRIVER
+M:	David E. Box <david.e.box@linux.intel.com>
+S:	Supported
+F:	drivers/platform/x86/intel/sdsi.c
+F:	tools/arch/x86/intel_sdsi/
+F:	tools/testing/selftests/drivers/sdsi/
 
 INTEL SKYLAKE INT3472 ACPI DEVICE DRIVER
 M:	Daniel Scally <djrscally@gmail.com>
@@ -9594,6 +9633,11 @@ M:	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 L:	platform-driver-x86@vger.kernel.org
 S:	Maintained
 F:	drivers/platform/x86/intel-uncore-frequency.c
+
+INTEL VENDOR SPECIFIC EXTENDED CAPABILITIES DRIVER
+M:	David E. Box <david.e.box@linux.intel.com>
+S:	Supported
+F:	drivers/platform/x86/intel/vsec.*
 
 INTEL VIRTUAL BUTTON DRIVER
 M:	AceLan Kao <acelan.kao@canonical.com>
@@ -10642,15 +10686,6 @@ F:	Documentation/process/license-rules.rst
 F:	LICENSES/
 F:	scripts/spdxcheck-test.sh
 F:	scripts/spdxcheck.py
-
-LIGHTNVM PLATFORM SUPPORT
-M:	Matias Bjorling <mb@lightnvm.io>
-L:	linux-block@vger.kernel.org
-S:	Maintained
-W:	http://github/OpenChannelSSD
-F:	drivers/lightnvm/
-F:	include/linux/lightnvm.h
-F:	include/uapi/linux/lightnvm.h
 
 LINEAR RANGES HELPERS
 M:	Mark Brown <broonie@kernel.org>
@@ -11771,6 +11806,12 @@ L:	linux-i2c@vger.kernel.org
 S:	Maintained
 F:	Documentation/devicetree/bindings/i2c/i2c-mt7621.txt
 F:	drivers/i2c/busses/i2c-mt7621.c
+
+MEDIATEK MT7621 PCIE CONTROLLER DRIVER
+M:	Sergio Paracuellos <sergio.paracuellos@gmail.com>
+S:	Maintained
+F:	Documentation/devicetree/bindings/pci/mediatek,mt7621-pcie.yaml
+F:	drivers/pci/controller/pcie-mt7621.c
 
 MEDIATEK MT7621 PHY PCI DRIVER
 M:	Sergio Paracuellos <sergio.paracuellos@gmail.com>
@@ -14247,7 +14288,8 @@ F:	Documentation/devicetree/bindings/pci/intel,ixp4xx-pci.yaml
 F:	drivers/pci/controller/pci-ixp4xx.c
 
 PCI DRIVER FOR INTEL VOLUME MANAGEMENT DEVICE (VMD)
-M:	Jonathan Derrick <jonathan.derrick@intel.com>
+M:	Nirmal Patel <nirmal.patel@linux.intel.com>
+R:	Jonathan Derrick <jonathan.derrick@linux.dev>
 L:	linux-pci@vger.kernel.org
 S:	Supported
 F:	drivers/pci/controller/vmd.c
@@ -14343,9 +14385,12 @@ M:	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 R:	Krzysztof Wilczyński <kw@linux.com>
 L:	linux-pci@vger.kernel.org
 S:	Supported
+Q:	https://patchwork.kernel.org/project/linux-pci/list/
+B:	https://bugzilla.kernel.org
+C:	irc://irc.oftc.net/linux-pci
+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/lpieralisi/pci.git
 F:	Documentation/PCI/endpoint/*
 F:	Documentation/misc-devices/pci-endpoint-test.rst
-T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kishon/pci-endpoint.git
 F:	drivers/misc/pci_endpoint_test.c
 F:	drivers/pci/endpoint/
 F:	tools/pci/
@@ -14370,6 +14415,19 @@ L:	linux-pci@vger.kernel.org
 S:	Supported
 F:	Documentation/PCI/pci-error-recovery.rst
 
+PCI PEER-TO-PEER DMA (P2PDMA)
+M:	Bjorn Helgaas <bhelgaas@google.com>
+M:	Logan Gunthorpe <logang@deltatee.com>
+L:	linux-pci@vger.kernel.org
+S:	Supported
+Q:	https://patchwork.kernel.org/project/linux-pci/list/
+B:	https://bugzilla.kernel.org
+C:	irc://irc.oftc.net/linux-pci
+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git
+F:	Documentation/driver-api/pci/p2pdma.rst
+F:	drivers/pci/p2pdma.c
+F:	include/linux/pci-p2pdma.h
+
 PCI MSI DRIVER FOR ALTERA MSI IP
 M:	Joyce Ooi <joyce.ooi@intel.com>
 L:	linux-pci@vger.kernel.org
@@ -14391,15 +14449,21 @@ R:	Rob Herring <robh@kernel.org>
 R:	Krzysztof Wilczyński <kw@linux.com>
 L:	linux-pci@vger.kernel.org
 S:	Supported
-Q:	http://patchwork.ozlabs.org/project/linux-pci/list/
-T:	git git://git.kernel.org/pub/scm/linux/kernel/git/lpieralisi/pci.git/
+Q:	https://patchwork.kernel.org/project/linux-pci/list/
+B:	https://bugzilla.kernel.org
+C:	irc://irc.oftc.net/linux-pci
+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/lpieralisi/pci.git
 F:	drivers/pci/controller/
+F:	drivers/pci/pci-bridge-emul.c
+F:	drivers/pci/pci-bridge-emul.h
 
 PCI SUBSYSTEM
 M:	Bjorn Helgaas <bhelgaas@google.com>
 L:	linux-pci@vger.kernel.org
 S:	Supported
-Q:	http://patchwork.ozlabs.org/project/linux-pci/list/
+Q:	https://patchwork.kernel.org/project/linux-pci/list/
+B:	https://bugzilla.kernel.org
+C:	irc://irc.oftc.net/linux-pci
 T:	git git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git
 F:	Documentation/PCI/
 F:	Documentation/devicetree/bindings/pci/
@@ -14471,6 +14535,13 @@ S:	Maintained
 F:	Documentation/devicetree/bindings/pci/intel-gw-pcie.yaml
 F:	drivers/pci/controller/dwc/pcie-intel-gw.c
 
+PCIE DRIVER FOR INTEL KEEM BAY
+M:	Srikanth Thokala <srikanth.thokala@intel.com>
+L:	linux-pci@vger.kernel.org
+S:	Supported
+F:	Documentation/devicetree/bindings/pci/intel,keembay-pcie*
+F:	drivers/pci/controller/dwc/pcie-keembay.c
+
 PCIE DRIVER FOR MEDIATEK
 M:	Ryder Lee <ryder.lee@mediatek.com>
 M:	Jianjun Wang <jianjun.wang@mediatek.com>
@@ -14492,7 +14563,15 @@ M:	Stanimir Varbanov <svarbanov@mm-sol.com>
 L:	linux-pci@vger.kernel.org
 L:	linux-arm-msm@vger.kernel.org
 S:	Maintained
-F:	drivers/pci/controller/dwc/*qcom*
+F:	drivers/pci/controller/dwc/pcie-qcom.c
+
+PCIE ENDPOINT DRIVER FOR QUALCOMM
+M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+L:	linux-pci@vger.kernel.org
+L:	linux-arm-msm@vger.kernel.org
+S:	Maintained
+F:	Documentation/devicetree/bindings/pci/qcom,pcie-ep.yaml
+F:	drivers/pci/controller/dwc/pcie-qcom-ep.c
 
 PCIE DRIVER FOR ROCKCHIP
 M:	Shawn Lin <shawn.lin@rock-chips.com>
@@ -14860,7 +14939,7 @@ F:	kernel/time/*timer*
 F:	kernel/time/namespace.c
 
 POWER MANAGEMENT CORE
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 L:	linux-pm@vger.kernel.org
 S:	Supported
 B:	https://bugzilla.kernel.org
@@ -15712,6 +15791,8 @@ F:	tools/testing/selftests/resctrl/
 
 READ-COPY UPDATE (RCU)
 M:	"Paul E. McKenney" <paulmck@kernel.org>
+M:	Frederic Weisbecker <frederic@kernel.org> (kernel/rcu/tree_nocb.h)
+M:	Neeraj Upadhyay <quic_neeraju@quicinc.com> (kernel/rcu/tasks.h)
 M:	Josh Triplett <josh@joshtriplett.org>
 R:	Steven Rostedt <rostedt@goodmis.org>
 R:	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
@@ -17803,7 +17884,7 @@ F:	arch/sh/
 F:	drivers/sh/
 
 SUSPEND TO RAM
-M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+M:	"Rafael J. Wysocki" <rafael@kernel.org>
 M:	Len Brown <len.brown@intel.com>
 M:	Pavel Machek <pavel@ucw.cz>
 L:	linux-pm@vger.kernel.org
@@ -19512,6 +19593,7 @@ T:	git git://github.com/awilliam/linux-vfio.git
 F:	Documentation/driver-api/vfio.rst
 F:	drivers/vfio/
 F:	include/linux/vfio.h
+F:	include/linux/vfio_pci_core.h
 F:	include/uapi/linux/vfio.h
 
 VFIO FSL-MC DRIVER
@@ -19528,6 +19610,16 @@ F:	Documentation/driver-api/vfio-mediated-device.rst
 F:	drivers/vfio/mdev/
 F:	include/linux/mdev.h
 F:	samples/vfio-mdev/
+
+VFIO PCI DEVICE SPECIFIC DRIVERS
+R:	Jason Gunthorpe <jgg@nvidia.com>
+R:	Yishai Hadas <yishaih@nvidia.com>
+R:	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+R:	Kevin Tian <kevin.tian@intel.com>
+L:	kvm@vger.kernel.org
+S:	Maintained
+P:	Documentation/driver-api/vfio-pci-device-specific-driver-acceptance.rst
+F:	drivers/vfio/pci/*/
 
 VFIO PLATFORM DRIVER
 M:	Eric Auger <eric.auger@redhat.com>
@@ -19659,6 +19751,7 @@ M:	"Michael S. Tsirkin" <mst@redhat.com>
 M:	Jason Wang <jasowang@redhat.com>
 L:	virtualization@lists.linux-foundation.org
 S:	Maintained
+F:	Documentation/ABI/testing/sysfs-bus-vdpa
 F:	Documentation/devicetree/bindings/virtio/
 F:	drivers/block/virtio_blk.c
 F:	drivers/crypto/virtio/

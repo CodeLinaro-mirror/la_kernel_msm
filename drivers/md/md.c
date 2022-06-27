@@ -5715,11 +5715,6 @@ static int md_alloc(dev_t dev, char *name)
 	mddev->queue = disk->queue;
 	blk_set_stacking_limits(&mddev->queue->limits);
 	blk_queue_write_cache(mddev->queue, true, true);
-	/* Allow extended partitions.  This makes the
-	 * 'mdp' device redundant, but we can't really
-	 * remove it now.
-	 */
-	disk->flags |= GENHD_FL_EXT_DEVT;
 	disk->events |= DISK_EVENT_MEDIA_CHANGE;
 	mddev->gendisk = disk;
 	error = add_disk(disk);
@@ -5874,10 +5869,6 @@ int md_run(struct mddev *mddev)
 		nowait = nowait && blk_queue_nowait(bdev_get_queue(rdev->bdev));
 	}
 
-	/* Set the NOWAIT flags if all underlying devices support it */
-	if (nowait)
-		blk_queue_flag_set(QUEUE_FLAG_NOWAIT, mddev->queue);
-
 	if (!bioset_initialized(&mddev->bio_set)) {
 		err = bioset_init(&mddev->bio_set, BIO_POOL_SIZE, 0, BIOSET_NEED_BVECS);
 		if (err)
@@ -6015,6 +6006,10 @@ int md_run(struct mddev *mddev)
 		else
 			blk_queue_flag_clear(QUEUE_FLAG_NONROT, mddev->queue);
 		blk_queue_flag_set(QUEUE_FLAG_IO_STAT, mddev->queue);
+
+		/* Set the NOWAIT flags if all underlying devices support it */
+		if (nowait)
+			blk_queue_flag_set(QUEUE_FLAG_NOWAIT, mddev->queue);
 	}
 	if (pers->sync_request) {
 		if (mddev->kobj.sd &&

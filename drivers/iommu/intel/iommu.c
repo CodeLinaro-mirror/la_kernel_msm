@@ -1987,10 +1987,10 @@ static void domain_exit(struct dmar_domain *domain)
  */
 static inline unsigned long context_get_sm_pds(struct pasid_table *table)
 {
-	int pds, max_pde;
+	unsigned long pds, max_pde;
 
 	max_pde = table->max_pasid >> PASID_PDE_SHIFT;
-	pds = find_first_bit((unsigned long *)&max_pde, MAX_NR_PASID_BITS);
+	pds = find_first_bit(&max_pde, MAX_NR_PASID_BITS);
 	if (pds < 7)
 		return 0;
 
@@ -2647,7 +2647,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
 	spin_unlock_irqrestore(&device_domain_lock, flags);
 
 	/* PASID table is mandatory for a PCI device in scalable mode. */
-	if (dev && dev_is_pci(dev) && sm_supported(iommu)) {
+	if (sm_supported(iommu) && !dev_is_real_dma_subdevice(dev)) {
 		ret = intel_pasid_alloc_table(dev);
 		if (ret) {
 			dev_err(dev, "PASID table allocation failed\n");
@@ -4692,7 +4692,7 @@ attach_failed:
 link_failed:
 	spin_unlock_irqrestore(&device_domain_lock, flags);
 	if (list_empty(&domain->subdevices) && domain->default_pasid > 0)
-		ioasid_put(domain->default_pasid);
+		ioasid_free(domain->default_pasid);
 
 	return ret;
 }
@@ -4722,7 +4722,7 @@ static void aux_domain_remove_dev(struct dmar_domain *domain,
 	spin_unlock_irqrestore(&device_domain_lock, flags);
 
 	if (list_empty(&domain->subdevices) && domain->default_pasid > 0)
-		ioasid_put(domain->default_pasid);
+		ioasid_free(domain->default_pasid);
 }
 
 static int prepare_domain_attach_device(struct iommu_domain *domain,

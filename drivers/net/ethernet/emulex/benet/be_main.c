@@ -62,6 +62,13 @@ static const struct pci_device_id be_dev_ids[] = {
 };
 MODULE_DEVICE_TABLE(pci, be_dev_ids);
 
+static const struct pci_device_id be_unmaintained_dev_ids[] = {
+#ifdef CONFIG_BE2NET_LANCER
+	{ PCI_DEVICE(EMULEX_VENDOR_ID, OC_DEVICE_ID3)},
+#endif /* CONFIG_BE2NET_LANCER */
+	{ 0 }
+};
+
 /* Workqueue used by all functions for defering cmd calls to the adapter */
 static struct workqueue_struct *be_wq;
 
@@ -369,7 +376,7 @@ static int be_mac_addr_set(struct net_device *netdev, void *p)
 	/* Remember currently programmed MAC */
 	ether_addr_copy(adapter->dev_mac, addr->sa_data);
 done:
-	ether_addr_copy(netdev->dev_addr, addr->sa_data);
+	eth_hw_addr_set(netdev, addr->sa_data);
 	dev_info(dev, "MAC address changed to %pM\n", addr->sa_data);
 	return 0;
 err:
@@ -4599,7 +4606,7 @@ static int be_mac_setup(struct be_adapter *adapter)
 		if (status)
 			return status;
 
-		memcpy(adapter->netdev->dev_addr, mac, ETH_ALEN);
+		eth_hw_addr_set(adapter->netdev, mac);
 		memcpy(adapter->netdev->perm_addr, mac, ETH_ALEN);
 
 		/* Initial MAC for BE3 VFs is already programmed by PF */
@@ -5819,6 +5826,8 @@ static int be_probe(struct pci_dev *pdev, const struct pci_device_id *pdev_id)
 	struct be_adapter *adapter;
 	struct net_device *netdev;
 	int status = 0;
+
+	pci_hw_unmaintained(be_unmaintained_dev_ids, pdev);
 
 	status = pci_enable_device(pdev);
 	if (status)

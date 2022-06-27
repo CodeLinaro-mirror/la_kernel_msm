@@ -794,7 +794,7 @@ static int mlx4_en_set_mac(struct net_device *dev, void *addr)
 	if (err)
 		goto out;
 
-	memcpy(dev->dev_addr, saddr->sa_data, ETH_ALEN);
+	eth_hw_addr_set(dev, saddr->sa_data);
 	mlx4_en_update_user_mac(priv, new_mac);
 out:
 	mutex_unlock(&mdev->state_lock);
@@ -2407,10 +2407,6 @@ static int mlx4_en_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
 
 	if (copy_from_user(&config, ifr->ifr_data, sizeof(config)))
 		return -EFAULT;
-
-	/* reserved for future extensions */
-	if (config.flags)
-		return -EINVAL;
 
 	/* device doesn't support time stamping */
 	if (!(mdev->dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_TS))

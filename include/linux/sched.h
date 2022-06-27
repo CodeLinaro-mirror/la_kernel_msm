@@ -44,6 +44,7 @@ struct backing_dev_info;
 struct bio_list;
 struct blk_plug;
 struct bpf_local_storage;
+struct bpf_run_ctx;
 struct capture_control;
 struct cfs_rq;
 struct fs_struct;
@@ -522,7 +523,11 @@ struct sched_statistics {
 	u64				nr_wakeups_affine_attempts;
 	u64				nr_wakeups_passive;
 	u64				nr_wakeups_idle;
+
+#ifdef CONFIG_SCHED_CORE
+	u64				core_forceidle_sum;
 #endif
+#endif /* CONFIG_SCHEDSTATS */
 } ____cacheline_aligned;
 
 struct sched_entity {
@@ -947,6 +952,9 @@ struct task_struct {
 	/* Recursion prevention for eventfd_signal() */
 	unsigned			in_eventfd_signal:1;
 #endif
+#ifdef CONFIG_IOMMU_SVA
+	RH_KABI_FILL_HOLE(unsigned	pasid_activated:1)
+#endif
 
 	unsigned long			atomic_flags; /* Flags requiring atomic access. */
 
@@ -1180,7 +1188,7 @@ struct task_struct {
 	struct blk_plug			*plug;
 
 	/* VM state: */
-	struct reclaim_state		*reclaim_state;
+	RH_KABI_EXCLUDE(struct reclaim_state *reclaim_state)
 
 	struct backing_dev_info		*backing_dev_info;
 
@@ -1450,6 +1458,7 @@ struct task_struct {
 	int				pagefault_disabled;
 #ifdef CONFIG_MMU
 	struct task_struct		*oom_reaper_list;
+	struct timer_list		oom_reaper_timer;
 #endif
 #ifdef CONFIG_VMAP_STACK
 	struct vm_struct		*stack_vm_area;
@@ -1468,6 +1477,8 @@ struct task_struct {
 #ifdef CONFIG_BPF_SYSCALL
 	/* Used by BPF task local storage */
 	struct bpf_local_storage __rcu	*bpf_storage;
+	/* Used for BPF run context */
+	struct bpf_run_ctx		*bpf_ctx;
 #endif
 
 #ifdef CONFIG_GCC_PLUGIN_STACKLEAK
@@ -1625,17 +1636,30 @@ static inline pid_t task_pgrp_nr(struct task_struct *tsk)
 #define TASK_REPORT_IDLE	(TASK_REPORT + 1)
 #define TASK_REPORT_MAX		(TASK_REPORT_IDLE << 1)
 
-static inline unsigned int task_state_index(struct task_struct *tsk)
+static inline unsigned int __task_state_index(unsigned int tsk_state,
+					      unsigned int tsk_exit_state)
 {
-	unsigned int tsk_state = READ_ONCE(tsk->__state);
-	unsigned int state = (tsk_state | tsk->exit_state) & TASK_REPORT;
+	unsigned int state = (tsk_state | tsk_exit_state) & TASK_REPORT;
 
 	BUILD_BUG_ON_NOT_POWER_OF_2(TASK_REPORT_MAX);
 
 	if (tsk_state == TASK_IDLE)
 		state = TASK_REPORT_IDLE;
 
+	/*
+	 * We're lying here, but rather than expose a completely new task state
+	 * to userspace, we can make this appear as if the task has gone through
+	 * a regular rt_mutex_lock() call.
+	 */
+	if (tsk_state == TASK_RTLOCK_WAIT)
+		state = TASK_UNINTERRUPTIBLE;
+
 	return fls(state);
+}
+
+static inline unsigned int task_state_index(struct task_struct *tsk)
+{
+	return __task_state_index(READ_ONCE(tsk->__state), tsk->exit_state);
 }
 
 static inline char task_index_to_char(unsigned int state)
@@ -2145,13 +2169,21 @@ static inline bool task_match_state_lock(struct task_struct *p,
 #if !defined(CONFIG_PREEMPTION) || defined(CONFIG_PREEMPT_DYNAMIC)
 extern int __cond_resched(void);
 
-#ifdef CONFIG_PREEMPT_DYNAMIC
+#if defined(CONFIG_PREEMPT_DYNAMIC) && defined(CONFIG_HAVE_PREEMPT_DYNAMIC_CALL)
 
 DECLARE_STATIC_CALL(cond_resched, __cond_resched);
 
 static __always_inline int _cond_resched(void)
 {
 	return static_call_mod(cond_resched)();
+}
+
+#elif defined(CONFIG_PREEMPT_DYNAMIC) && defined(CONFIG_HAVE_PREEMPT_DYNAMIC_KEY)
+extern int dynamic_cond_resched(void);
+
+static __always_inline int _cond_resched(void)
+{
+	return dynamic_cond_resched();
 }
 
 #else
@@ -2312,6 +2344,15 @@ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
 #endif
 
 #ifdef CONFIG_SMP
+static inline bool owner_on_cpu(struct task_struct *owner)
+{
+	/*
+	 * As lock holder preemption issue, we both skip spinning if
+	 * task is not on cpu or its cpu is preempted
+	 */
+	return READ_ONCE(owner->on_cpu) && !vcpu_is_preempted(task_cpu(owner));
+}
+
 /* Returns effective CPU energy utilization, as seen by the scheduler */
 unsigned long sched_cpu_util(int cpu, unsigned long max);
 #endif /* CONFIG_SMP */

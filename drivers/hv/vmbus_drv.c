@@ -22,7 +22,6 @@
 #include <linux/clockchips.h>
 #include <linux/cpu.h>
 #include <linux/sched/task_stack.h>
-#include <linux/irq.h>
 
 #include <linux/delay.h>
 #include <linux/notifier.h>
@@ -921,6 +920,21 @@ static int vmbus_probe(struct device *child_device)
 }
 
 /*
+ * vmbus_dma_configure -- Configure DMA coherence for VMbus device
+ */
+static int vmbus_dma_configure(struct device *child_device)
+{
+	/*
+	 * On ARM64, propagate the DMA coherence setting from the top level
+	 * VMbus ACPI device to the child VMbus device being added here.
+	 * On x86/x64 coherence is assumed and these calls have no effect.
+	 */
+	hv_setup_dma_ops(child_device,
+		device_get_dma_attr(&hv_acpi_dev->dev) == DEV_DMA_COHERENT);
+	return 0;
+}
+
+/*
  * vmbus_remove - Remove a vmbus device
  */
 static int vmbus_remove(struct device *child_device)
@@ -1043,6 +1057,7 @@ static struct bus_type  hv_bus = {
 	.remove =		vmbus_remove,
 	.probe =		vmbus_probe,
 	.uevent =		vmbus_uevent,
+	.dma_configure =	vmbus_dma_configure,
 	.dev_groups =		vmbus_dev_groups,
 	.drv_groups =		vmbus_drv_groups,
 	.bus_groups =		vmbus_bus_groups,
@@ -1341,8 +1356,6 @@ static void vmbus_isr(void)
 	void *page_addr = hv_cpu->synic_event_page;
 	struct hv_message *msg;
 	union hv_synic_event_flags *event;
-	struct pt_regs *regs = get_irq_regs();
-	u64 ip = regs ? instruction_pointer(regs) : 0;
 	bool handled = false;
 
 	if (unlikely(page_addr == NULL))
@@ -1387,7 +1400,7 @@ static void vmbus_isr(void)
 			tasklet_schedule(&hv_cpu->msg_dpc);
 	}
 
-	add_interrupt_randomness(vmbus_interrupt, 0, ip);
+	add_interrupt_randomness(vmbus_interrupt);
 }
 
 static irqreturn_t vmbus_percpu_isr(int irq, void *dev_id)
@@ -2426,6 +2439,21 @@ static int vmbus_acpi_add(struct acpi_device *device)
 	struct acpi_device *ancestor;
 
 	hv_acpi_dev = device;
+
+	/*
+	 * Older versions of Hyper-V for ARM64 fail to include the _CCA
+	 * method on the top level VMbus device in the DSDT. But devices
+	 * are hardware coherent in all current Hyper-V use cases, so fix
+	 * up the ACPI device to behave as if _CCA is present and indicates
+	 * hardware coherence.
+	 */
+	ACPI_COMPANION_SET(&device->dev, device);
+	if (IS_ENABLED(CONFIG_ACPI_CCA_REQUIRED) &&
+	    device_get_dma_attr(&device->dev) == DEV_DMA_NOT_SUPPORTED) {
+		pr_info("No ACPI _CCA found; assuming coherent device I/O\n");
+		device->flags.cca_seen = true;
+		device->flags.coherent_dma = true;
+	}
 
 	result = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
 					vmbus_walk_resources, NULL);

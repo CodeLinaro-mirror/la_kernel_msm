@@ -1021,7 +1021,7 @@ This package provides debug information for package kernel-tools.
 # symlinks because of the trailing nonmatching alternation and
 # the leading .*, because of find-debuginfo.sh's buggy handling
 # of matching the pattern against the symlinks file.
-%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%%{_bindir}/centrino-decode(\.debug)?|.*%%{_bindir}/powernow-k8-decode(\.debug)?|.*%%{_bindir}/cpupower(\.debug)?|.*%%{_libdir}/libcpupower.*|.*%%{_bindir}/turbostat(\.debug)?|.*%%{_bindir}/x86_energy_perf_policy(\.debug)?|.*%%{_bindir}/tmon(\.debug)?|.*%%{_bindir}/lsgpio(\.debug)?|.*%%{_bindir}/gpio-hammer(\.debug)?|.*%%{_bindir}/gpio-event-mon(\.debug)?|.*%%{_bindir}/gpio-watch(\.debug)?|.*%%{_bindir}/iio_event_monitor(\.debug)?|.*%%{_bindir}/iio_generic_buffer(\.debug)?|.*%%{_bindir}/lsiio(\.debug)?|.*%%{_bindir}/intel-speed-select(\.debug)?|.*%%{_bindir}/page_owner_sort(\.debug)?|.*%%{_bindir}/slabinfo(\.debug)?|XXX' -o kernel-tools-debuginfo.list}
+%{expand:%%global _find_debuginfo_opts %{?_find_debuginfo_opts} -p '.*%%{_bindir}/centrino-decode(\.debug)?|.*%%{_bindir}/powernow-k8-decode(\.debug)?|.*%%{_bindir}/cpupower(\.debug)?|.*%%{_libdir}/libcpupower.*|.*%%{_bindir}/turbostat(\.debug)?|.*%%{_bindir}/x86_energy_perf_policy(\.debug)?|.*%%{_bindir}/tmon(\.debug)?|.*%%{_bindir}/lsgpio(\.debug)?|.*%%{_bindir}/gpio-hammer(\.debug)?|.*%%{_bindir}/gpio-event-mon(\.debug)?|.*%%{_bindir}/gpio-watch(\.debug)?|.*%%{_bindir}/iio_event_monitor(\.debug)?|.*%%{_bindir}/iio_generic_buffer(\.debug)?|.*%%{_bindir}/lsiio(\.debug)?|.*%%{_bindir}/intel-speed-select(\.debug)?|.*%%{_bindir}/page_owner_sort(\.debug)?|.*%%{_bindir}/slabinfo(\.debug)?|.*%%{_sbindir}/intel_sdsi(\.debug)?|XXX' -o kernel-tools-debuginfo.list}
 
 # with_tools
 %endif
@@ -2283,6 +2283,9 @@ chmod +x tools/power/cpupower/utils/version-gen.sh
    pushd tools/power/x86/intel-speed-select
    %{make}
    popd
+   pushd tools/arch/x86/intel_sdsi
+   %{tools_make}
+   popd
 %endif
 %endif
 pushd tools/thermal/tmon/
@@ -2325,7 +2328,7 @@ if [ ! -f include/generated/autoconf.h ]; then
    %{make} %{?_smp_mflags} modules_prepare
 fi
 
-%{make} %{?_smp_mflags} ARCH=$Arch V=1 M=samples/bpf/
+%{make} %{?_smp_mflags} ARCH=$Arch V=1 M=samples/bpf/ VMLINUX_H="${RPM_VMLINUX_H}"
 
 # Prevent bpf selftests to build bpftool repeatedly:
 export BPFTOOL=$(pwd)/tools/bpf/bpftool/bpftool
@@ -2333,7 +2336,7 @@ export BPFTOOL=$(pwd)/tools/bpf/bpftool/bpftool
 pushd tools/testing/selftests
 # We need to install here because we need to call make with ARCH set which
 # doesn't seem possible to do in the install section.
-%{make} %{?_smp_mflags} ARCH=$Arch V=1 TARGETS="bpf livepatch net net/forwarding net/mptcp netfilter tc-testing memfd" SKIP_TARGETS="" FORCE_TARGETS=1 INSTALL_PATH=%{buildroot}%{_libexecdir}/kselftests VMLINUX_H="${RPM_VMLINUX_H}" install
+%{make} %{?_smp_mflags} ARCH=$Arch V=1 TARGETS="bpf livepatch vm net net/forwarding net/mptcp netfilter tc-testing memfd" SKIP_TARGETS="" FORCE_TARGETS=1 INSTALL_PATH=%{buildroot}%{_libexecdir}/kselftests VMLINUX_H="${RPM_VMLINUX_H}" install
 
 # 'make install' for bpf is broken and upstream refuses to fix it.
 # Install the needed files manually.
@@ -2556,6 +2559,9 @@ install -m644 %{SOURCE2001} %{buildroot}%{_sysconfdir}/sysconfig/cpupower
    pushd tools/power/x86/intel-speed-select
    %{tools_make} CFLAGS+="-D_GNU_SOURCE -Iinclude" DESTDIR=%{buildroot} install
    popd
+   pushd tools/arch/x86/intel_sdsi
+   %{tools_make} DESTDIR=%{buildroot} install
+   popd
 %endif
 pushd tools/thermal/tmon
 %{tools_make} INSTALL_ROOT=%{buildroot} install
@@ -2611,6 +2617,12 @@ install -d %{buildroot}%{_libexecdir}/ksamples/pktgen
 find . -type f -executable -exec install -m755 {} %{buildroot}%{_libexecdir}/ksamples/pktgen/{} \;
 find . -type f ! -executable -exec install -m644 {} %{buildroot}%{_libexecdir}/ksamples/pktgen/{} \;
 popd
+popd
+# install vm selftests
+pushd tools/testing/selftests/vm
+find -type d -exec install -d %{buildroot}%{_libexecdir}/kselftests/vm/{} \;
+find -type f -executable -exec install -D -m755 {} %{buildroot}%{_libexecdir}/kselftests/vm/{} \;
+find -type f ! -executable -exec install -D -m644 {} %{buildroot}%{_libexecdir}/kselftests/vm/{} \;
 popd
 # install drivers/net/mlxsw selftests
 pushd tools/testing/selftests/drivers/net/mlxsw
@@ -2842,6 +2854,7 @@ fi
 %if %{with_headers}
 %files headers
 /usr/include/*
+%exclude %{_includedir}/cpufreq.h
 %endif
 
 %if %{with_cross_headers}
@@ -2914,6 +2927,7 @@ fi
 %{_bindir}/turbostat
 %{_mandir}/man8/turbostat*
 %{_bindir}/intel-speed-select
+%{_sbindir}/intel_sdsi
 %endif
 # cpupowerarchs
 %endif

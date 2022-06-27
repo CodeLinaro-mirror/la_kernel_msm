@@ -1,4 +1,3 @@
-GIT ?= git
 include Makefile.common
 include Makefile.rhpkg
 
@@ -53,6 +52,14 @@ ARCHCONFIG := $(shell uname -m | sed -e s/x86_64/X86_64/ \
 KABIDW := $(REDHAT)/kabi-dwarf
 
 include Makefile.cross
+
+RHJOBS?=$(shell j=$$(echo $(MAKEFLAGS) | grep -Eo "\ -j[0-9]*" | xargs ); \
+	if [ -z "$${j}" ]; then \
+		echo "1"; \
+	else \
+		j=$$(echo "$${j}" | tr -d "\-j"); \
+		[ -z "$${j}" ] && nproc --all || echo $${j}; \
+	fi)
 
 default: dist-help
 
@@ -125,12 +132,12 @@ dist-kabi-dw-check: dist-kabi
 	@rm -rf $(KABIDW)/base/$(CURARCH).tmp
 
 dist-configs-commit: dist-configs-prep
-	@cd $(REDHAT)/configs; VERSION=$(KVERSION) ./generate_all_configs.sh "$(FLAVOR)" 1; \
-	./process_configs.sh -z $(PACKAGE_NAME) $(KVERSION) "" $(FLAVOR)
+	+@cd $(REDHAT)/configs; VERSION=$(KVERSION) ./generate_all_configs.sh "$(FLAVOR)" 1; \
+	./process_configs.sh -z "$(PACKAGE_NAME)" "$(KVERSION)" "" "$(FLAVOR)" "$(RHJOBS)"
 
 dist-configs: dist-configs-prep
-	@cd $(REDHAT)/configs; VERSION=$(KVERSION) ./generate_all_configs.sh "$(FLAVOR)" 1; \
-	./process_configs.sh $(PROCESS_CONFIGS_OPTS) $(PACKAGE_NAME) $(KVERSION)
+	+@cd $(REDHAT)/configs; VERSION=$(KVERSION) ./generate_all_configs.sh "$(FLAVOR)" 1; \
+	./process_configs.sh $(PROCESS_CONFIGS_OPTS) "$(PACKAGE_NAME)" "$(KVERSION)" "" "" "$(RHJOBS)"
 
 dist-fedora-configs: FLAVOR = fedora
 dist-fedora-configs: dist-configs
@@ -141,19 +148,17 @@ dist-rhel-configs: dist-configs
 rh-configs: dist-rhel-configs
 
 dist-configs-check: dist-configs-prep
-	cd $(REDHAT)/configs; ./process_configs.sh $(PROCESS_CONFIGS_CHECK_OPTS) $(PACKAGE_NAME)
+	+cd $(REDHAT)/configs; ./process_configs.sh $(PROCESS_CONFIGS_CHECK_OPTS) $(PACKAGE_NAME) "" "" "" "$(RHJOBS)"
 
 dist-configs-prep: dist-clean-configs dist-buildreq-check
-	cd $(REDHAT)/configs; ./build_configs.sh "partial" "$(ARCH_MACH)" "snip"
-	cd $(REDHAT)/configs; ./build_configs.sh "$(PACKAGE_NAME)" "$(ARCH_MACH)" "$(FLAVOR)"
+	+cd $(REDHAT)/configs; ./build_configs.sh "partial" "$(ARCH_MACH)" "snip" "$(RHJOBS)"
+	+cd $(REDHAT)/configs; ./build_configs.sh "$(PACKAGE_NAME)" "$(ARCH_MACH)" "$(FLAVOR)" "$(RHJOBS)"
 
 dist-configs-arch: ARCH_MACH = $(MACH)
 dist-configs-arch: dist-configs
 
 dist-clean-configs:
-	cd $(REDHAT)/configs; rm -f kernel-*.config \
-					kernel-*.config.orig \
-					kernel-*.config.tmp
+	@cd $(REDHAT)/configs; rm -f kernel-*.config kernel-*.config.orig kernel-*.config.tmp
 
 dist-clean-sources:
 	@rm -f $(RPM)/SPECS/*
@@ -166,10 +171,7 @@ dist-clean-rpmdirs:
 		rm -rf $$i; \
 	done;
 
-dist-clean-scripts:
-	@rm -f dist-dump-variables.sh
-
-dist-clean: dist-clean-sources dist-clean-configs dist-clean-rpmdirs dist-clean-scripts
+dist-clean: dist-clean-sources dist-clean-configs dist-clean-rpmdirs
 
 dist-stub-key:
 	@echo "Copying pre-generated keys";
@@ -240,7 +242,7 @@ setup-source: dist-git-version-check dist-clean-sources
 		cp $(REDHAT)/$(CHANGELOG_PREV) $(REDHAT)/$(CHANGELOG); \
 	fi
 	@cp $(REDHAT)/$(CHANGELOG) $(SOURCES)/$(CHANGELOG)
-	@$(REDHAT)/genspec.sh $(SOURCES) $(SOURCES)/$(SPECFILE) $(PACKAGE_NAME) $(SOURCES)/$(CHANGELOG) $(PKGRELEASE) $(RPMKVERSION) $(RPMKPATCHLEVEL) $(RPMKSUBLEVEL) $(SPECRELEASE) $(__ZSTREAM) "$(BUILDOPTS)" $(RTBZ) $(MARKER) `cat $(REDHAT)/marker` $(SINGLE_TARBALL) $(TARFILE_RELEASE) $(SNAPSHOT) $(UPSTREAM_BRANCH) $(INCLUDE_FEDORA_FILES) $(INCLUDE_RHEL_FILES) $(BUILDID)
+	@$(REDHAT)/genspec.sh $(SOURCES) $(SOURCES)/$(SPECFILE) $(PACKAGE_NAME) $(SOURCES)/$(CHANGELOG) $(PKGRELEASE) $(RPMKVERSION) $(RPMKPATCHLEVEL) $(RPMKSUBLEVEL) $(SPECRELEASE) $(__ZSTREAM) "$(BUILDOPTS)" $(RTBZ) $(MARKER) `cat $(REDHAT)/marker` $(SINGLE_TARBALL) $(TARFILE_RELEASE) $(SNAPSHOT) $(UPSTREAM_BRANCH) $(INCLUDE_FEDORA_FILES) $(INCLUDE_RHEL_FILES) "$(BUILDID)" $(AUTOMOTIVEBUILD)
 	@cp $(SOURCES)/$(SPECFILE) $(SOURCES)/../SPECS/
 
 generate-testpatch-tmp:
@@ -396,7 +398,7 @@ distg-brew distg-koji: distg-%:
 	$* $(BUILD_PROFILE) build $(BUILD_FLAGS) $(BUILD_TARGET) "$(RHGITURL)?redhat/koji#$(RHGITCOMMIT)"
 
 distg-cbs: distg-%:
-	$* $(BUILD_PROFILE) build $(BUILD_FLAGS) $(BUILD_TARGET) "$(CSGITURL)$(PACKAGE_NAME).git#$(AUTOGITREF)"
+	$* $(BUILD_PROFILE) build $(BUILD_FLAGS) $(BUILD_TARGET) "$(CSGITURL)/$(PACKAGE_NAME).git#$(RHGITCOMMIT)"
 
 dist-automotive-release-finish: setup-source
 	@cp $(SOURCES)/$(CHANGELOG) $(REDHAT)/$(CHANGELOG)
@@ -404,7 +406,7 @@ dist-automotive-release-finish: setup-source
 	@$(GIT) add $(REDHAT)/marker
 	@echo "[redhat] $(PACKAGE_NAME)-$(STAMP_VERSION)-$(PKGRELEASE)" > /tmp/rtkcommit
 	@echo "" >> /tmp/rtkcommit
-	@$(GIT) commit -F /tmp/rtkcommit -s ../Makefile.rhelver $(REDHAT)/marker $(REDHAT)/$(CHANGELOG) kernel.spec.template Makefile.automotive
+	@$(GIT) commit -F /tmp/rtkcommit -s ../Makefile.rhelver $(REDHAT)/marker $(REDHAT)/$(CHANGELOG) kernel.spec.template
 
 dist-automotive-release-changed: setup-source
 	@cp $(SOURCES)/$(CHANGELOG) $(REDHAT)/$(CHANGELOG)
@@ -419,7 +421,7 @@ dist-automotive-release-changed: setup-source
 	fi
 
 dist-automotive-build-sig:
-	$(REDHAT)/scripts/automotive_build_sig.sh "$(AUTOSIG_BRANCH)" "$(RHDISTGIT_CACHE)" "$(RHDISTGIT_TMP)" "$(TARBALL)" "$(PACKAGE_NAME)" "$(STAMP_VERSION)" "$(PKGRELEASE)" "$(AUTOUSETAGS)"
+	$(REDHAT)/scripts/automotive_build_sig.sh "$(AUTOSIG_BRANCH)" "$(RHDISTGIT_CACHE)" "$(RHDISTGIT_TMP)" "$(TARBALL)" "$(PACKAGE_NAME)" "$(STAMP_VERSION)" "$(PKGRELEASE)"
 
 dist-automotive-sig-release: dist-clean-sources
 	@# generate new version
@@ -470,12 +472,8 @@ dist-get-latest:
 dist-os-version:
 	@echo "OSVERSION: $(RHEL_MAJOR).$(RHEL_MINOR)"
 
-.EXPORT_ALL_VARIABLES:
-.PHONY: dist-dump-variables
 dist-dump-variables:
-	grep -h "^[ 	]*[a-zA-Z_][a-zA-Z_0-9]*[ 	]*[:?]*=" $(REDHAT)/Makefile.common $(REDHAT)/Makefile $(TOPDIR)/Makefile.rhelver | sed -e 's/[ 	]*\([a-zA-Z_][a-zA-Z_0-9]*\).*/echo "\1=$$\1"/' | sort | uniq > dist-dump-variables.sh
-	chmod +x $(REDHAT)/dist-dump-variables.sh
-	@$(REDHAT)/dist-dump-variables.sh
+	@$(foreach V,$(sort $(.VARIABLES)), $(if $(filter-out environment% default automatic, $(origin $V)),$(info $V=$($V) )))
 
 dist-self-test:
 	@if test -x /usr/bin/bats; then \
@@ -546,8 +544,8 @@ dist-full-help:
 	@echo  '                    configuration.'
 	@echo  '  distg-cbs       - Pass HEAD of the current git branch to cbs to build an'
 	@echo  '                    RPM set.  Do not forget to push to the remote repository'
-	@echo  '                    first.  See the distg-brew target for options and'
-	@echo  '                    configuration.'
+	@echo  '                    first.  Preceed make command by RHGITCOMMIT=<commitID>'
+	@echo  '                    to specify the dist-git commit ID to use.'
 	@echo  '  dist-rpms       - Create the binary RPMS for the kernel.'
 	@echo  '                    See the dist-brew target for available options.'
 	@echo  '  dist-rpm-baseonly  - Create the binary RPMS for the kernel and modules'

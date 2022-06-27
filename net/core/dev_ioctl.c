@@ -192,7 +192,7 @@ static int net_hwtstamp_validate(struct ifreq *ifr)
 	if (copy_from_user(&cfg, ifr->ifr_data, sizeof(cfg)))
 		return -EFAULT;
 
-	if (cfg.flags) /* reserved for future extensions */
+	if (cfg.flags & ~HWTSTAMP_FLAG_MASK)
 		return -EINVAL;
 
 	tx_type = cfg.tx_type;
@@ -518,9 +518,7 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
 
 	case SIOCETHTOOL:
 		dev_load(net, ifr->ifr_name);
-		rtnl_lock();
 		ret = dev_ethtool(net, ifr, data);
-		rtnl_unlock();
 		if (colon)
 			*colon = ':';
 		return ret;

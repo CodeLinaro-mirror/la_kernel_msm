@@ -706,7 +706,7 @@ static int lsm_superblock_alloc(struct super_block *sb)
 #define LSM_RET_DEFAULT(NAME) (NAME##_default)
 #define DECLARE_LSM_RET_DEFAULT_void(DEFAULT, NAME)
 #define DECLARE_LSM_RET_DEFAULT_int(DEFAULT, NAME) \
-	static const int LSM_RET_DEFAULT(NAME) = (DEFAULT);
+	static const int __maybe_unused LSM_RET_DEFAULT(NAME) = (DEFAULT);
 #define LSM_HOOK(RET, DEFAULT, NAME, ...) \
 	DECLARE_LSM_RET_DEFAULT_##RET(DEFAULT, NAME)
 
@@ -884,9 +884,22 @@ int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc)
 	return call_int_hook(fs_context_dup, 0, fc, src_fc);
 }
 
-int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *param)
+int security_fs_context_parse_param(struct fs_context *fc,
+				    struct fs_parameter *param)
 {
-	return call_int_hook(fs_context_parse_param, -ENOPARAM, fc, param);
+	struct security_hook_list *hp;
+	int trc;
+	int rc = -ENOPARAM;
+
+	hlist_for_each_entry(hp, &security_hook_heads.fs_context_parse_param,
+			     list) {
+		trc = hp->hook.fs_context_parse_param(fc, param);
+		if (trc == 0)
+			rc = 0;
+		else if (trc != -ENOPARAM)
+			return trc;
+	}
+	return rc;
 }
 
 int security_sb_alloc(struct super_block *sb)
@@ -993,14 +1006,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
 				kern_flags, set_kern_flags);
 }
 EXPORT_SYMBOL(security_sb_clone_mnt_opts);
-
-int security_add_mnt_opt(const char *option, const char *val, int len,
-			 void **mnt_opts)
-{
-	return call_int_hook(sb_add_mnt_opt, -EINVAL,
-					option, val, len, mnt_opts);
-}
-EXPORT_SYMBOL(security_add_mnt_opt);
 
 int security_move_mount(const struct path *from_path, const struct path *to_path)
 {
@@ -1807,12 +1812,12 @@ int security_task_getsid(struct task_struct *p)
 	return call_int_hook(task_getsid, 0, p);
 }
 
-void security_task_getsecid_subj(struct task_struct *p, u32 *secid)
+void security_current_getsecid_subj(u32 *secid)
 {
 	*secid = 0;
-	call_void_hook(task_getsecid_subj, p, secid);
+	call_void_hook(current_getsecid_subj, secid);
 }
-EXPORT_SYMBOL(security_task_getsecid_subj);
+EXPORT_SYMBOL(security_current_getsecid_subj);
 
 void security_task_getsecid_obj(struct task_struct *p, u32 *secid)
 {
@@ -2366,9 +2371,9 @@ int security_tun_dev_open(void *security)
 }
 EXPORT_SYMBOL(security_tun_dev_open);
 
-int security_sctp_assoc_request(struct sctp_endpoint *ep, struct sk_buff *skb)
+int security_sctp_assoc_request(struct sctp_association *asoc, struct sk_buff *skb)
 {
-	return call_int_hook(sctp_assoc_request, 0, ep, skb);
+	return call_int_hook(sctp_assoc_request, 0, asoc, skb);
 }
 EXPORT_SYMBOL(security_sctp_assoc_request);
 
@@ -2380,12 +2385,19 @@ int security_sctp_bind_connect(struct sock *sk, int optname,
 }
 EXPORT_SYMBOL(security_sctp_bind_connect);
 
-void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
+void security_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk,
 			    struct sock *newsk)
 {
-	call_void_hook(sctp_sk_clone, ep, sk, newsk);
+	call_void_hook(sctp_sk_clone, asoc, sk, newsk);
 }
 EXPORT_SYMBOL(security_sctp_sk_clone);
+
+int security_sctp_assoc_established(struct sctp_association *asoc,
+				    struct sk_buff *skb)
+{
+	return call_int_hook(sctp_assoc_established, 0, asoc, skb);
+}
+EXPORT_SYMBOL(security_sctp_assoc_established);
 
 #endif	/* CONFIG_SECURITY_NETWORK */
 

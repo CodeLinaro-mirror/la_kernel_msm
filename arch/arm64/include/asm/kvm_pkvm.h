@@ -416,6 +416,11 @@ static inline unsigned long pkvm_selftest_pages(void) { return 0; }
 #define KVM_FFA_MBOX_NR_PAGES		1
 #define KVM_FFA_SPM_HANDLE_NR_PAGES	2
 
+/* struct ffa_handle is a single 64-bit bitfield, see hyp/nvhe/ffa.c */
+#define KVM_FFA_SPM_HANDLE_SIZE		sizeof(u64)
+
+extern u64 kvm_nvhe_sym(kvm_ffa_spm_nr_pages);
+
 /*
  * Maximum number of constituents allowed in a descriptor. This number is
  * arbitrary, and can be overridden via command line kvm-arm.ffa_max_nr_constituents.
@@ -465,7 +470,7 @@ static inline unsigned long hyp_ffa_proxy_pages(void)
 	num_pages = (2 * KVM_FFA_MBOX_NR_PAGES) + DIV_ROUND_UP(desc_max, PAGE_SIZE);
 
 	if (pkvm_ffa_unmap_on_lend())
-		num_pages += KVM_FFA_SPM_HANDLE_NR_PAGES;
+		num_pages += kvm_nvhe_sym(kvm_ffa_spm_nr_pages);
 
 	return num_pages;
 }

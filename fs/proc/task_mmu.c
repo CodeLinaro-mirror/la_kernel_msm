@@ -138,18 +138,18 @@ static void release_task_mempolicy(struct proc_maps_private *priv)
 
 #ifdef CONFIG_PER_VMA_LOCK
 
-static void unlock_ctx_vma(struct proc_maps_locking_ctx *lock_ctx)
+static void unlock_vma(struct proc_maps_private *priv)
 {
-	if (lock_ctx->locked_vma) {
-		vma_end_read(lock_ctx->locked_vma);
-		lock_ctx->locked_vma = NULL;
+	if (priv->locked_vma) {
+		vma_end_read(priv->locked_vma);
+		priv->locked_vma = NULL;
 	}
 }
 
 static const struct seq_operations proc_pid_maps_op;
 
 static inline bool lock_vma_range(struct seq_file *m,
-				  struct proc_maps_locking_ctx *lock_ctx)
+				  struct proc_maps_private *priv)
 {
 	/*
 	 * smaps and numa_maps perform page table walk, therefore require
@@ -157,25 +157,25 @@ static inline bool lock_vma_range(struct seq_file *m,
 	 * walking the vma tree under rcu read protection.
 	 */
 	if (m->op != &proc_pid_maps_op) {
-		if (mmap_read_lock_killable(lock_ctx->mm))
+		if (mmap_read_lock_killable(priv->mm))
 			return false;
 
-		lock_ctx->mmap_locked = true;
+		priv->mmap_locked = true;
 	} else {
 		rcu_read_lock();
-		lock_ctx->locked_vma = NULL;
-		lock_ctx->mmap_locked = false;
+		priv->locked_vma = NULL;
+		priv->mmap_locked = false;
 	}
 
 	return true;
 }
 
-static inline void unlock_vma_range(struct proc_maps_locking_ctx *lock_ctx)
+static inline void unlock_vma_range(struct proc_maps_private *priv)
 {
-	if (lock_ctx->mmap_locked) {
-		mmap_read_unlock(lock_ctx->mm);
+	if (priv->mmap_locked) {
+		mmap_read_unlock(priv->mm);
 	} else {
-		unlock_ctx_vma(lock_ctx);
+		unlock_vma(priv);
 		rcu_read_unlock();
 	}
 }
@@ -183,16 +183,15 @@ static inline void unlock_vma_range(struct proc_maps_locking_ctx *lock_ctx)
 static struct vm_area_struct *get_next_vma(struct proc_maps_private *priv,
 					   loff_t last_pos)
 {
-	struct proc_maps_locking_ctx *lock_ctx = &priv->lock_ctx;
 	struct vm_area_struct *vma;
 
-	if (lock_ctx->mmap_locked)
+	if (priv->mmap_locked)
 		return vma_next(&priv->iter);
 
-	unlock_ctx_vma(lock_ctx);
-	vma = lock_next_vma(lock_ctx->mm, &priv->iter, last_pos);
+	unlock_vma(priv);
+	vma = lock_next_vma(priv->mm, &priv->iter, last_pos);
 	if (!IS_ERR_OR_NULL(vma))
-		lock_ctx->locked_vma = vma;
+		priv->locked_vma = vma;
 
 	return vma;
 }
@@ -200,16 +199,14 @@ static struct vm_area_struct *get_next_vma(struct proc_maps_private *priv,
 static inline bool fallback_to_mmap_lock(struct proc_maps_private *priv,
 					 loff_t pos)
 {
-	struct proc_maps_locking_ctx *lock_ctx = &priv->lock_ctx;
-
-	if (lock_ctx->mmap_locked)
+	if (priv->mmap_locked)
 		return false;
 
 	rcu_read_unlock();
-	mmap_read_lock(lock_ctx->mm);
+	mmap_read_lock(priv->mm);
 	/* Reinitialize the iterator after taking mmap_lock */
 	vma_iter_set(&priv->iter, pos);
-	lock_ctx->mmap_locked = true;
+	priv->mmap_locked = true;
 
 	return true;
 }
@@ -217,14 +214,14 @@ static inline bool fallback_to_mmap_lock(struct proc_maps_private *priv,
 #else /* CONFIG_PER_VMA_LOCK */
 
 static inline bool lock_vma_range(struct seq_file *m,
-				  struct proc_maps_locking_ctx *lock_ctx)
+				  struct proc_maps_private *priv)
 {
-	return mmap_read_lock_killable(lock_ctx->mm) == 0;
+	return mmap_read_lock_killable(priv->mm) == 0;
 }
 
-static inline void unlock_vma_range(struct proc_maps_locking_ctx *lock_ctx)
+static inline void unlock_vma_range(struct proc_maps_private *priv)
 {
-	mmap_read_unlock(lock_ctx->mm);
+	mmap_read_unlock(priv->mm);
 }
 
 static struct vm_area_struct *get_next_vma(struct proc_maps_private *priv,
@@ -267,7 +264,7 @@ retry:
 		*ppos = vma->vm_end;
 	} else {
 		*ppos = SENTINEL_VMA_GATE;
-		vma = get_gate_vma(priv->lock_ctx.mm);
+		vma = get_gate_vma(priv->mm);
 	}
 
 	return vma;
@@ -276,7 +273,6 @@ retry:
 static void *m_start(struct seq_file *m, loff_t *ppos)
 {
 	struct proc_maps_private *priv = m->private;
-	struct proc_maps_locking_ctx *lock_ctx;
 	loff_t last_addr = *ppos;
 	struct mm_struct *mm;
 
@@ -288,15 +284,14 @@ static void *m_start(struct seq_file *m, loff_t *ppos)
 	if (!priv->task)
 		return ERR_PTR(-ESRCH);
 
-	lock_ctx = &priv->lock_ctx;
-	mm = lock_ctx->mm;
+	mm = priv->mm;
 	if (!mm || !mmget_not_zero(mm)) {
 		put_task_struct(priv->task);
 		priv->task = NULL;
 		return NULL;
 	}
 
-	if (!lock_vma_range(m, lock_ctx)) {
+	if (!lock_vma_range(m, priv)) {
 		mmput(mm);
 		put_task_struct(priv->task);
 		priv->task = NULL;
@@ -329,13 +324,13 @@ static void *m_next(struct seq_file *m, void *v, loff_t *ppos)
 static void m_stop(struct seq_file *m, void *v)
 {
 	struct proc_maps_private *priv = m->private;
-	struct mm_struct *mm = priv->lock_ctx.mm;
+	struct mm_struct *mm = priv->mm;
 
 	if (!priv->task)
 		return;
 
 	release_task_mempolicy(priv);
-	unlock_vma_range(&priv->lock_ctx);
+	unlock_vma_range(priv);
 	mmput(mm);
 	put_task_struct(priv->task);
 	priv->task = NULL;
@@ -350,9 +345,9 @@ static int proc_maps_open(struct inode *inode, struct file *file,
 		return -ENOMEM;
 
 	priv->inode = inode;
-	priv->lock_ctx.mm = proc_mem_open(inode, PTRACE_MODE_READ);
-	if (IS_ERR(priv->lock_ctx.mm)) {
-		int err = PTR_ERR(priv->lock_ctx.mm);
+	priv->mm = proc_mem_open(inode, PTRACE_MODE_READ);
+	if (IS_ERR(priv->mm)) {
+		int err = PTR_ERR(priv->mm);
 
 		seq_release_private(inode, file);
 		return err;
@@ -366,8 +361,8 @@ static int proc_map_release(struct inode *inode, struct file *file)
 	struct seq_file *seq = file->private_data;
 	struct proc_maps_private *priv = seq->private;
 
-	if (priv->lock_ctx.mm)
-		mmdrop(priv->lock_ctx.mm);
+	if (priv->mm)
+		mmdrop(priv->mm);
 
 	return seq_release_private(inode, file);
 }
@@ -650,7 +645,7 @@ static int do_procmap_query(struct proc_maps_private *priv, void __user *uarg)
 	if (!!karg.build_id_size != !!karg.build_id_addr)
 		return -EINVAL;
 
-	mm = priv->lock_ctx.mm;
+	mm = priv->mm;
 	if (!mm || !mmget_not_zero(mm))
 		return -ESRCH;
 
@@ -1380,7 +1375,7 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
 {
 	struct proc_maps_private *priv = m->private;
 	struct mem_size_stats mss = {};
-	struct mm_struct *mm = priv->lock_ctx.mm;
+	struct mm_struct *mm = priv->mm;
 	struct vm_area_struct *vma;
 	unsigned long vma_start = 0, last_vma_end = 0;
 	int ret = 0;
@@ -1533,9 +1528,9 @@ static int smaps_rollup_open(struct inode *inode, struct file *file)
 		goto out_free;
 
 	priv->inode = inode;
-	priv->lock_ctx.mm = proc_mem_open(inode, PTRACE_MODE_READ);
-	if (IS_ERR_OR_NULL(priv->lock_ctx.mm)) {
-		ret = priv->lock_ctx.mm ? PTR_ERR(priv->lock_ctx.mm) : -ESRCH;
+	priv->mm = proc_mem_open(inode, PTRACE_MODE_READ);
+	if (IS_ERR_OR_NULL(priv->mm)) {
+		ret = priv->mm ? PTR_ERR(priv->mm) : -ESRCH;
 
 		single_release(inode, file);
 		goto out_free;
@@ -1553,8 +1548,8 @@ static int smaps_rollup_release(struct inode *inode, struct file *file)
 	struct seq_file *seq = file->private_data;
 	struct proc_maps_private *priv = seq->private;
 
-	if (priv->lock_ctx.mm)
-		mmdrop(priv->lock_ctx.mm);
+	if (priv->mm)
+		mmdrop(priv->mm);
 
 	kfree(priv);
 	return single_release(inode, file);
